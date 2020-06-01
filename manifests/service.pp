@@ -1,19 +1,19 @@
-# filebeat::service
+# metricbeat::service
 #
-# Manage the filebeat service
+# Manage the metricbeat service
 #
-# @summary Manage the filebeat service
-class filebeat::service {
-  service { 'filebeat':
-    ensure   => $filebeat::real_service_ensure,
-    enable   => $filebeat::real_service_enable,
-    provider => $filebeat::service_provider,
+# @summary Manage the metricbeat service
+class metricbeat::service {
+  service { 'metricbeat':
+    ensure   => $metricbeat::real_service_ensure,
+    enable   => $metricbeat::real_service_enable,
+    provider => $metricbeat::service_provider,
   }
 
-  $major_version                  = $filebeat::major_version
-  $systemd_beat_log_opts_override = $filebeat::systemd_beat_log_opts_override
+  $major_version                  = $metricbeat::major_version
+  $systemd_beat_log_opts_override = $metricbeat::systemd_beat_log_opts_override
 
-  #make sure puppet client version 6.1+ with filebeat version 7+, running on systemd
+  #make sure puppet client version 6.1+ with metricbeat version 7+, running on systemd
   if ( versioncmp( $major_version, '7'   ) >= 0 and
     $::service_provider == 'systemd' ) {
 
@@ -26,17 +26,17 @@ class filebeat::service {
       }
 
       ensure_resource('file',
-        $filebeat::systemd_override_dir,
+        $metricbeat::systemd_override_dir,
         {
           ensure => 'directory',
         }
       )
 
-      file { "${filebeat::systemd_override_dir}/logging.conf":
+      file { "${metricbeat::systemd_override_dir}/logging.conf":
         ensure  => $ensure_overide,
-        content => template($filebeat::systemd_beat_log_opts_template),
-        require => File[$filebeat::systemd_override_dir],
-        notify  => Service['filebeat'],
+        content => template($metricbeat::systemd_beat_log_opts_template),
+        require => File[$metricbeat::systemd_override_dir],
+        notify  => Service['metricbeat'],
       }
 
     } else {
@@ -47,17 +47,17 @@ class filebeat::service {
         $ensure_overide = 'absent'
       }
 
-      if !defined(File[$filebeat::systemd_override_dir]) {
-        file{$filebeat::systemd_override_dir:
+      if !defined(File[$metricbeat::systemd_override_dir]) {
+        file{$metricbeat::systemd_override_dir:
           ensure => 'directory',
         }
       }
 
-      file { "${filebeat::systemd_override_dir}/logging.conf":
+      file { "${metricbeat::systemd_override_dir}/logging.conf":
         ensure  => $ensure_overide,
-        content => template($filebeat::systemd_beat_log_opts_template),
-        require => File[$filebeat::systemd_override_dir],
-        notify  => Service['filebeat'],
+        content => template($metricbeat::systemd_beat_log_opts_template),
+        require => File[$metricbeat::systemd_override_dir],
+        notify  => Service['metricbeat'],
       }
 
       unless defined('systemd') {

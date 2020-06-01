@@ -1,10 +1,10 @@
 require 'spec_helper'
 
-describe 'filebeat::repo' do
+describe 'metricbeat::repo' do
   on_supported_os(facterversion: '2.4').each do |os, os_facts|
     context "on #{os}" do
       let(:facts) { os_facts }
-      let(:pre_condition) { "class { 'filebeat': major_version => '#{major_version}' }" }
+      let(:pre_condition) { "class { 'metricbeat': major_version => '#{major_version}' }" }
 
       [5, 6].each do |version|
         context "with $major_version == #{version}" do

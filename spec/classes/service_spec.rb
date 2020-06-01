@@ -1,8 +1,8 @@
 require 'spec_helper'
 
-describe 'filebeat::service' do
+describe 'metricbeat::service' do
   let :pre_condition do
-    'include ::filebeat'
+    'include ::metricbeat'
   end
 
   on_supported_os(facterversion: '2.4').each do |os, os_facts|
@@ -14,7 +14,7 @@ describe 'filebeat::service' do
       end
 
       it {
-        is_expected.to contain_service('filebeat').with(
+        is_expected.to contain_service('metricbeat').with(
           ensure: 'running',
           enable: true,
         )

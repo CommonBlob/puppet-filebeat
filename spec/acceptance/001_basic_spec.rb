@@ -1,23 +1,23 @@
 require 'spec_helper_acceptance'
 
-RSpec.shared_examples 'filebeat' do
-  describe package('filebeat') do
+RSpec.shared_examples 'metricbeat' do
+  describe package('metricbeat') do
     it { is_expected.to be_installed }
   end
 
-  describe service('filebeat') do
+  describe service('metricbeat') do
     it { is_expected.to be_enabled }
     it { is_expected.to be_running }
   end
 
-  describe file('/etc/filebeat/filebeat.yml') do
+  describe file('/etc/metricbeat/metricbeat.yml') do
     it { is_expected.to be_file }
     it { is_expected.to contain('---') }
     it { is_expected.not_to contain('max_procs: !ruby') }
   end
 end
 
-describe 'filebeat class' do
+describe 'metricbeat class' do
   let(:pp) do
     <<-HEREDOC
     if $::osfamily == 'Debian' {
@@ -28,7 +28,7 @@ describe 'filebeat class' do
       }
     }
 
-    class { 'filebeat':
+    class { 'metricbeat':
       major_version => '#{major_version}',
       outputs => {
         'logstash' => {
@@ -39,7 +39,7 @@ describe 'filebeat class' do
         },
         'file'     => {
           'path' => '/tmp',
-          'filename' => 'filebeat',
+          'filename' => 'metricbeat',
           'rotate_every_kb' => 10240,
           'number_of_files' => 2,
         },
@@ -80,13 +80,13 @@ describe 'filebeat class' do
     let(:major_version) { 5 }
 
     it_behaves_like 'an idempotent resource'
-    include_examples 'filebeat'
+    include_examples 'metricbeat'
   end
 
   context 'with $major_version = 6' do
     let(:major_version) { 6 }
 
     it_behaves_like 'an idempotent resource'
-    include_examples 'filebeat'
+    include_examples 'metricbeat'
   end
 end

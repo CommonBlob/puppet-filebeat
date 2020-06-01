@@ -8,4 +8,4 @@ fixtures:
     powershell: "https://github.com/puppetlabs/puppetlabs-powershell.git"
     archive: "https://github.com/voxpupuli/puppet-archive.git"
   symlinks:
-    filebeat: "#{source_dir}"
+    metricbeat: "#{source_dir}"

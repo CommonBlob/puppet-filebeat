@@ -1,12 +1,12 @@
 {
-  "name": "pcfens-filebeat",
-  "version": "4.3.1",
-  "author": "pcfens",
-  "summary": "A module to install and manage the filebeat log shipper",
+  "name": "commonblob-metricbeat",
+  "version": "4.4.1",
+  "author": "commonblob",
+  "summary": "A module to install and manage the metricbeat log shipper",
   "license": "Apache-2.0",
-  "source": "https://github.com/pcfens/puppet-filebeat",
-  "project_page": "https://github.com/pcfens/puppet-filebeat",
-  "issues_url": "https://github.com/pcfens/puppet-filebeat/issues",
+  "source": "https://github.com/commonblob/puppet-metricbeat",
+  "project_page": "https://github.com/commonblob/puppet-metricbeat",
+  "issues_url": "https://github.com/commonblob/puppet-metricbeat/issues",
   "dependencies": [
     {
       "name": "puppetlabs/stdlib",
@@ -18,7 +18,7 @@
     },
     {
       "name": "puppetlabs/powershell",
-      "version_requirement": ">= 1.0.1 < 3.0.0"
+      "version_requirement": ">= 1.0.1 < 4.0.0"
     },
     {
       "name": "puppet/archive",
@@ -80,14 +80,17 @@
       "operatingsystemrelease": [
         "14.04",
         "16.04",
-        "18.04"
+        "18.04",
+        "20.04"
       ]
     },
     {
       "operatingsystem": "windows",
       "operatingsystemrelease": [
         "2012",
-        "2012 R2"
+        "2012 R2",
+        "2016",
+        "2019"
       ]
     },
     {
@@ -101,12 +104,12 @@
     }
   ],
   "tags": [
-    "filebeat",
+    "metricbeat",
     "logstash",
     "elasticsearch",
     "elastic"
   ],
-  "pdk-version": "1.17.0",
-  "template-url": "pdk-default#1.17.0",
-  "template-ref": "tags/1.17.0-0-gd3a4319"
+  "pdk-version": "1.18.0",
+  "template-url": "pdk-default#1.18.0",
+  "template-ref": "tags/1.18.0-0-g095317c"
 }

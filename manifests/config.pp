@@ -1,92 +1,96 @@
-# filebeat::config
+# metricbeat::config
 #
-# Manage the configuration files for filebeat
+# Manage the configuration files for metricbeat
 #
-# @summary A private class to manage the filebeat config file
-class filebeat::config {
-  $major_version = $filebeat::major_version
+# @summary A private class to manage the metricbeat config file
+class metricbeat::config {
+  $major_version = $metricbeat::major_version
 
-  if has_key($filebeat::setup, 'ilm.policy') {
-    file {"${filebeat::config_dir}/ilm_policy.json":
-      content => to_json({'policy' => $filebeat::setup['ilm.policy']}),
-      notify  => Service['filebeat'],
-      require => File['filebeat-config-dir'],
+  if has_key($metricbeat::setup, 'ilm.policy') {
+    file {"${metricbeat::config_dir}/ilm_policy.json":
+      content => to_json({'policy' => $metricbeat::setup['ilm.policy']}),
+      notify  => Service['metricbeat'],
+      require => File['metricbeat-config-dir'],
     }
-    $setup = $filebeat::setup - 'ilm.policy' + {'ilm.policy_file' => "${filebeat::config_dir}/ilm_policy.json"}
+    $setup = $metricbeat::setup - 'ilm.policy' + {'ilm.policy_file' => "${metricbeat::config_dir}/ilm_policy.json"}
   } else {
-    $setup = $filebeat::setup
+    $setup = $metricbeat::setup
   }
 
   if versioncmp($major_version, '6') >= 0 {
-    $filebeat_config_temp = delete_undef_values({
-      'shutdown_timeout'  => $filebeat::shutdown_timeout,
-      'name'              => $filebeat::beat_name,
-      'tags'              => $filebeat::tags,
-      'max_procs'         => $filebeat::max_procs,
-      'fields'            => $filebeat::fields,
-      'fields_under_root' => $filebeat::fields_under_root,
-      'filebeat'          => {
+    $metricbeat_config_temp = delete_undef_values({
+      'shutdown_timeout'  => $metricbeat::shutdown_timeout,
+      'name'              => $metricbeat::beat_name,
+      'tags'              => $metricbeat::tags,
+      'max_procs'         => $metricbeat::max_procs,
+      'cloud_id'          => $metricbeat::cloud_id,
+      'cloud_auth'        => $metricbeat::cloud_auth,
+      'fields'            => $metricbeat::fields,
+      'fields_under_root' => $metricbeat::fields_under_root,
+      'metricbeat'          => {
         'config.inputs' => {
           'enabled' => true,
-          'path'    => "${filebeat::config_dir}/*.yml",
+          'path'    => "${metricbeat::config_dir}/*.yml",
         },
         'config.modules' => {
-          'enabled' => $filebeat::enable_conf_modules,
-          'path'    => "${filebeat::modules_dir}/*.yml",
+          'enabled' => $metricbeat::enable_conf_modules,
+          'path'    => "${metricbeat::modules_dir}/*.yml",
         },
-        'shutdown_timeout'   => $filebeat::shutdown_timeout,
-        'modules'           => $filebeat::modules,
+        'shutdown_timeout'   => $metricbeat::shutdown_timeout,
+        'modules'           => $metricbeat::modules,
       },
-      'http'              => $filebeat::http,
-      'output'            => $filebeat::outputs,
-      'shipper'           => $filebeat::shipper,
-      'logging'           => $filebeat::logging,
-      'runoptions'        => $filebeat::run_options,
-      'processors'        => $filebeat::processors,
-      'monitoring'        => $filebeat::monitoring,
+      'http'              => $metricbeat::http,
+      'output'            => $metricbeat::outputs,
+      'shipper'           => $metricbeat::shipper,
+      'logging'           => $metricbeat::logging,
+      'runoptions'        => $metricbeat::run_options,
+      'processors'        => $metricbeat::processors,
+      'monitoring'        => $metricbeat::monitoring,
       'setup'             => $setup,
     })
     # Add the 'xpack' section if supported (version >= 6.1.0) and not undef
-    if $filebeat::xpack and versioncmp($filebeat::package_ensure, '6.1.0') >= 0 {
-      $filebeat_config = deep_merge($filebeat_config_temp, {'xpack' => $filebeat::xpack})
+    if $metricbeat::xpack and versioncmp($metricbeat::package_ensure, '6.1.0') >= 0 {
+      $metricbeat_config = deep_merge($metricbeat_config_temp, {'xpack' => $metricbeat::xpack})
     }
     else {
-      $filebeat_config = $filebeat_config_temp
+      $metricbeat_config = $metricbeat_config_temp
     }
   } else {
-    $filebeat_config_temp = delete_undef_values({
-      'shutdown_timeout'  => $filebeat::shutdown_timeout,
-      'name'              => $filebeat::beat_name,
-      'tags'              => $filebeat::tags,
-      'queue_size'        => $filebeat::queue_size,
-      'max_procs'         => $filebeat::max_procs,
-      'fields'            => $filebeat::fields,
-      'fields_under_root' => $filebeat::fields_under_root,
-      'filebeat'          => {
-        'spool_size'       => $filebeat::spool_size,
-        'idle_timeout'     => $filebeat::idle_timeout,
-        'registry_file'    => $filebeat::registry_file,
-        'publish_async'    => $filebeat::publish_async,
-        'config_dir'       => $filebeat::config_dir,
-        'shutdown_timeout' => $filebeat::shutdown_timeout,
+    $metricbeat_config_temp = delete_undef_values({
+      'shutdown_timeout'  => $metricbeat::shutdown_timeout,
+      'name'              => $metricbeat::beat_name,
+      'tags'              => $metricbeat::tags,
+      'queue_size'        => $metricbeat::queue_size,
+      'max_procs'         => $metricbeat::max_procs,
+      'cloud_id'          => $metricbeat::cloud_id,
+      'cloud_auth'        => $metricbeat::cloud_auth,
+      'fields'            => $metricbeat::fields,
+      'fields_under_root' => $metricbeat::fields_under_root,
+      'metricbeat'          => {
+        'spool_size'       => $metricbeat::spool_size,
+        'idle_timeout'     => $metricbeat::idle_timeout,
+        'registry_file'    => $metricbeat::registry_file,
+        'publish_async'    => $metricbeat::publish_async,
+        'config_dir'       => $metricbeat::config_dir,
+        'shutdown_timeout' => $metricbeat::shutdown_timeout,
       },
-      'output'            => $filebeat::outputs,
-      'shipper'           => $filebeat::shipper,
-      'logging'           => $filebeat::logging,
-      'runoptions'        => $filebeat::run_options,
-      'processors'        => $filebeat::processors,
+      'output'            => $metricbeat::outputs,
+      'shipper'           => $metricbeat::shipper,
+      'logging'           => $metricbeat::logging,
+      'runoptions'        => $metricbeat::run_options,
+      'processors'        => $metricbeat::processors,
     })
     # Add the 'modules' section if supported (version >= 5.2.0)
-    if versioncmp($filebeat::package_ensure, '5.2.0') >= 0 {
-      $filebeat_config = deep_merge($filebeat_config_temp, {'modules' => $filebeat::modules})
+    if versioncmp($metricbeat::package_ensure, '5.2.0') >= 0 {
+      $metricbeat_config = deep_merge($metricbeat_config_temp, {'modules' => $metricbeat::modules})
     }
     else {
-      $filebeat_config = $filebeat_config_temp
+      $metricbeat_config = $metricbeat_config_temp
     }
   }
 
-  if 'filebeat_version' in $facts and $facts['filebeat_version'] != false {
-    $skip_validation = versioncmp($facts['filebeat_version'], $filebeat::major_version) ? {
+  if 'metricbeat_version' in $facts and $facts['metricbeat_version'] != false {
+    $skip_validation = versioncmp($facts['metricbeat_version'], $metricbeat::major_version) ? {
       -1      => true,
       default => false,
     }
@@ -96,133 +100,133 @@ class filebeat::config {
 
   case $::kernel {
     'Linux'   : {
-      $validate_cmd = ($filebeat::disable_config_test or $skip_validation) ? {
+      $validate_cmd = ($metricbeat::disable_config_test or $skip_validation) ? {
         true    => undef,
         default => $major_version ? {
-          '5'     => "${filebeat::filebeat_path} -N -configtest -c %",
-          default => "${filebeat::filebeat_path} -c % test config",
+          '5'     => "${metricbeat::metricbeat_path} -N -configtest -c %",
+          default => "${metricbeat::metricbeat_path} -c % test config",
         },
       }
 
-      file {'filebeat.yml':
-        ensure       => $filebeat::file_ensure,
-        path         => $filebeat::config_file,
-        content      => template($filebeat::conf_template),
-        owner        => $filebeat::config_file_owner,
-        group        => $filebeat::config_file_group,
-        mode         => $filebeat::config_file_mode,
+      file {'metricbeat.yml':
+        ensure       => $metricbeat::file_ensure,
+        path         => $metricbeat::config_file,
+        content      => template($metricbeat::conf_template),
+        owner        => $metricbeat::config_file_owner,
+        group        => $metricbeat::config_file_group,
+        mode         => $metricbeat::config_file_mode,
         validate_cmd => $validate_cmd,
-        notify       => Service['filebeat'],
-        require      => File['filebeat-config-dir'],
+        notify       => Service['metricbeat'],
+        require      => File['metricbeat-config-dir'],
       }
 
-      file {'filebeat-config-dir':
-        ensure  => $filebeat::directory_ensure,
-        path    => $filebeat::config_dir,
-        owner   => $filebeat::config_dir_owner,
-        group   => $filebeat::config_dir_group,
-        mode    => $filebeat::config_dir_mode,
-        recurse => $filebeat::purge_conf_dir,
-        purge   => $filebeat::purge_conf_dir,
+      file {'metricbeat-config-dir':
+        ensure  => $metricbeat::directory_ensure,
+        path    => $metricbeat::config_dir,
+        owner   => $metricbeat::config_dir_owner,
+        group   => $metricbeat::config_dir_group,
+        mode    => $metricbeat::config_dir_mode,
+        recurse => $metricbeat::purge_conf_dir,
+        purge   => $metricbeat::purge_conf_dir,
         force   => true,
       }
     } # end Linux
 
     'FreeBSD'   : {
-      $validate_cmd = ($filebeat::disable_config_test or $skip_validation) ? {
+      $validate_cmd = ($metricbeat::disable_config_test or $skip_validation) ? {
         true    => undef,
-        default => '/usr/local/sbin/filebeat -N -configtest -c %',
+        default => '/usr/local/sbin/metricbeat -N -configtest -c %',
       }
 
-      file {'filebeat.yml':
-        ensure       => $filebeat::file_ensure,
-        path         => $filebeat::config_file,
-        content      => template($filebeat::conf_template),
-        owner        => $filebeat::config_file_owner,
-        group        => $filebeat::config_file_group,
-        mode         => $filebeat::config_file_mode,
+      file {'metricbeat.yml':
+        ensure       => $metricbeat::file_ensure,
+        path         => $metricbeat::config_file,
+        content      => template($metricbeat::conf_template),
+        owner        => $metricbeat::config_file_owner,
+        group        => $metricbeat::config_file_group,
+        mode         => $metricbeat::config_file_mode,
         validate_cmd => $validate_cmd,
-        notify       => Service['filebeat'],
-        require      => File['filebeat-config-dir'],
+        notify       => Service['metricbeat'],
+        require      => File['metricbeat-config-dir'],
       }
 
-      file {'filebeat-config-dir':
-        ensure  => $filebeat::directory_ensure,
-        path    => $filebeat::config_dir,
-        owner   => $filebeat::config_dir_owner,
-        group   => $filebeat::config_dir_group,
-        mode    => $filebeat::config_dir_mode,
-        recurse => $filebeat::purge_conf_dir,
-        purge   => $filebeat::purge_conf_dir,
+      file {'metricbeat-config-dir':
+        ensure  => $metricbeat::directory_ensure,
+        path    => $metricbeat::config_dir,
+        owner   => $metricbeat::config_dir_owner,
+        group   => $metricbeat::config_dir_group,
+        mode    => $metricbeat::config_dir_mode,
+        recurse => $metricbeat::purge_conf_dir,
+        purge   => $metricbeat::purge_conf_dir,
         force   => true,
       }
     } # end FreeBSD
 
     'OpenBSD'   : {
-      $validate_cmd = ($filebeat::disable_config_test or $skip_validation) ? {
+      $validate_cmd = ($metricbeat::disable_config_test or $skip_validation) ? {
         true    => undef,
         default => $major_version ? {
-          '5'     => "${filebeat::filebeat_path} -N -configtest -c %",
-          default => "${filebeat::filebeat_path} -c % test config",
+          '5'     => "${metricbeat::metricbeat_path} -N -configtest -c %",
+          default => "${metricbeat::metricbeat_path} -c % test config",
         },
       }
 
-      file {'filebeat.yml':
-        ensure       => $filebeat::file_ensure,
-        path         => $filebeat::config_file,
-        content      => template($filebeat::conf_template),
-        owner        => $filebeat::config_file_owner,
-        group        => $filebeat::config_file_group,
-        mode         => $filebeat::config_file_mode,
+      file {'metricbeat.yml':
+        ensure       => $metricbeat::file_ensure,
+        path         => $metricbeat::config_file,
+        content      => template($metricbeat::conf_template),
+        owner        => $metricbeat::config_file_owner,
+        group        => $metricbeat::config_file_group,
+        mode         => $metricbeat::config_file_mode,
         validate_cmd => $validate_cmd,
-        notify       => Service['filebeat'],
-        require      => File['filebeat-config-dir'],
+        notify       => Service['metricbeat'],
+        require      => File['metricbeat-config-dir'],
       }
 
-      file {'filebeat-config-dir':
-        ensure  => $filebeat::directory_ensure,
-        path    => $filebeat::config_dir,
-        owner   => $filebeat::config_dir_owner,
-        group   => $filebeat::config_dir_group,
-        mode    => $filebeat::config_dir_mode,
-        recurse => $filebeat::purge_conf_dir,
-        purge   => $filebeat::purge_conf_dir,
+      file {'metricbeat-config-dir':
+        ensure  => $metricbeat::directory_ensure,
+        path    => $metricbeat::config_dir,
+        owner   => $metricbeat::config_dir_owner,
+        group   => $metricbeat::config_dir_group,
+        mode    => $metricbeat::config_dir_mode,
+        recurse => $metricbeat::purge_conf_dir,
+        purge   => $metricbeat::purge_conf_dir,
         force   => true,
       }
     } # end OpenBSD
 
     'Windows' : {
-      $cmd_install_dir = regsubst($filebeat::install_dir, '/', '\\', 'G')
-      $filebeat_path = join([$cmd_install_dir, 'Filebeat', 'filebeat.exe'], '\\')
+      $cmd_install_dir = regsubst($metricbeat::install_dir, '/', '\\', 'G')
+      $metricbeat_path = join([$cmd_install_dir, 'Metricbeat', 'metricbeat.exe'], '\\')
 
-      $validate_cmd = ($filebeat::disable_config_test or $skip_validation) ? {
+      $validate_cmd = ($metricbeat::disable_config_test or $skip_validation) ? {
         true    => undef,
         default => $major_version ? {
-          '7'     => "\"${filebeat_path}\" test config -c \"%\"",
-          default => "\"${filebeat_path}\" -N -configtest -c \"%\"",
+          '7'     => "\"${metricbeat_path}\" test config -c \"%\"",
+          default => "\"${metricbeat_path}\" -N -configtest -c \"%\"",
         }
       }
 
-      file {'filebeat.yml':
-        ensure       => $filebeat::file_ensure,
-        path         => $filebeat::config_file,
-        content      => template($filebeat::conf_template),
+      file {'metricbeat.yml':
+        ensure       => $metricbeat::file_ensure,
+        path         => $metricbeat::config_file,
+        content      => template($metricbeat::conf_template),
         validate_cmd => $validate_cmd,
-        notify       => Service['filebeat'],
-        require      => File['filebeat-config-dir'],
+        notify       => Service['metricbeat'],
+        require      => File['metricbeat-config-dir'],
       }
 
-      file {'filebeat-config-dir':
-        ensure  => $filebeat::directory_ensure,
-        path    => $filebeat::config_dir,
-        recurse => $filebeat::purge_conf_dir,
-        purge   => $filebeat::purge_conf_dir,
+      file {'metricbeat-config-dir':
+        ensure  => $metricbeat::directory_ensure,
+        path    => $metricbeat::config_dir,
+        recurse => $metricbeat::purge_conf_dir,
+        purge   => $metricbeat::purge_conf_dir,
         force   => true,
       }
     } # end Windows
 
     default : {
-      fail($filebeat::kernel_fail_message)
+      fail($metricbeat::kernel_fail_message)
     }
   }
 }

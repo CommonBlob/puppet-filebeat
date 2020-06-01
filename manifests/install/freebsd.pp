@@ -1,13 +1,13 @@
-# filebeat::install::freebsd
+# metricbeat::install::freebsd
 #
-# Install the FreeBSD filebeat package
+# Install the FreeBSD metricbeat package
 #
-# @summary A simple class to install the filebeat package
+# @summary A simple class to install the metricbeat package
 #
-class filebeat::install::freebsd {
+class metricbeat::install::freebsd {
 
-  # filebeat, heartbeat, metricbeat, packetbeat are all contained in a
+  # metricbeat, heartbeat, metricbeat, packetbeat are all contained in a
   # single FreeBSD Package (see https://www.freshports.org/sysutils/beats/ )
-  ensure_packages (['beats'], {ensure => $filebeat::package_ensure})
+  ensure_packages (['beats'], {ensure => $metricbeat::package_ensure})
 
 }

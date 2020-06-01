@@ -1,6 +1,6 @@
-# to manage filebeat installation on OpenBSD
-class filebeat::install::openbsd {
-  package {'filebeat':
-    ensure => $filebeat::package_ensure,
+# to manage metricbeat installation on OpenBSD
+class metricbeat::install::openbsd {
+  package {'metricbeat':
+    ensure => $metricbeat::package_ensure,
   }
 }

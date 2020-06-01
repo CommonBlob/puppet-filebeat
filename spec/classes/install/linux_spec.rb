@@ -1,8 +1,8 @@
 require 'spec_helper'
 
-describe 'filebeat::install::linux' do
+describe 'metricbeat::install::linux' do
   let :pre_condition do
-    'include ::filebeat'
+    'include ::metricbeat'
   end
 
   on_supported_os(facterversion: '2.4').each do |os, os_facts|
@@ -12,7 +12,7 @@ describe 'filebeat::install::linux' do
       case os_facts[:kernel]
       when 'Linux'
         it { is_expected.to compile }
-        it { is_expected.to contain_package('filebeat').with_ensure('present') }
+        it { is_expected.to contain_package('metricbeat').with_ensure('present') }
       else
         it { is_expected.not_to compile }
       end

@@ -1,43 +1,43 @@
-# filebeat::install
+# metricbeat::install
 #
-# A private class to manage the installation of Filebeat
+# A private class to manage the installation of Metricbeat
 #
-# @summary A private class that manages the install of Filebeat
-class filebeat::install {
-  anchor { 'filebeat::install::begin': }
+# @summary A private class that manages the install of Metricbeat
+class metricbeat::install {
+  anchor { 'metricbeat::install::begin': }
 
   case $::kernel {
     'Linux':   {
-      class{ '::filebeat::install::linux':
-        notify => Class['filebeat::service'],
+      class{ '::metricbeat::install::linux':
+        notify => Class['metricbeat::service'],
       }
-      Anchor['filebeat::install::begin'] -> Class['filebeat::install::linux'] -> Anchor['filebeat::install::end']
-      if $::filebeat::manage_repo {
-        class { '::filebeat::repo': }
-        Class['filebeat::repo'] -> Class['filebeat::install::linux']
+      Anchor['metricbeat::install::begin'] -> Class['metricbeat::install::linux'] -> Anchor['metricbeat::install::end']
+      if $::metricbeat::manage_repo {
+        class { '::metricbeat::repo': }
+        Class['metricbeat::repo'] -> Class['metricbeat::install::linux']
       }
     }
     'FreeBSD': {
-      class{ '::filebeat::install::freebsd':
-        notify => Class['filebeat::service'],
+      class{ '::metricbeat::install::freebsd':
+        notify => Class['metricbeat::service'],
       }
-      Anchor['filebeat::install::begin'] -> Class['filebeat::install::freebsd'] -> Anchor['filebeat::install::end']
+      Anchor['metricbeat::install::begin'] -> Class['metricbeat::install::freebsd'] -> Anchor['metricbeat::install::end']
     }
     'OpenBSD': {
-      class{'filebeat::install::openbsd':}
-      Anchor['filebeat::install::begin'] -> Class['filebeat::install::openbsd'] -> Anchor['filebeat::install::end']
+      class{'metricbeat::install::openbsd':}
+      Anchor['metricbeat::install::begin'] -> Class['metricbeat::install::openbsd'] -> Anchor['metricbeat::install::end']
     }
     'Windows': {
-      class{'::filebeat::install::windows':
-        notify => Class['filebeat::service'],
+      class{'::metricbeat::install::windows':
+        notify => Class['metricbeat::service'],
       }
-      Anchor['filebeat::install::begin'] -> Class['filebeat::install::windows'] -> Anchor['filebeat::install::end']
+      Anchor['metricbeat::install::begin'] -> Class['metricbeat::install::windows'] -> Anchor['metricbeat::install::end']
     }
     default:   {
-      fail($filebeat::kernel_fail_message)
+      fail($metricbeat::kernel_fail_message)
     }
   }
 
-  anchor { 'filebeat::install::end': }
+  anchor { 'metricbeat::install::end': }
 
 }

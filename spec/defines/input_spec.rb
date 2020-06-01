@@ -1,8 +1,8 @@
 require 'spec_helper'
 
-describe 'filebeat::input' do
+describe 'metricbeat::input' do
   let :pre_condition do
-    'class { "filebeat":
+    'class { "metricbeat":
         outputs => {
           "logstash" => {
             "hosts" => [
@@ -48,8 +48,8 @@ describe 'filebeat::input' do
       end
 
       it {
-        is_expected.to contain_file('filebeat-test-logs').with(
-          notify: 'Service[filebeat]',
+        is_expected.to contain_file('metricbeat-test-logs').with(
+          notify: 'Service[metricbeat]',
         )
       }
     end
@@ -69,10 +69,10 @@ describe 'filebeat::input' do
         it { is_expected.to compile }
 
         it {
-          is_expected.to contain_file('filebeat-docker').with(
-            notify: 'Service[filebeat]',
+          is_expected.to contain_file('metricbeat-docker').with(
+            notify: 'Service[metricbeat]',
           )
-          is_expected.to contain_file('filebeat-docker').with_content(
+          is_expected.to contain_file('metricbeat-docker').with_content(
             %r{- type: docker\n\s{2}containers:\n\s{4}ids:\n\s{4}- '\*'\n\s{4}path: /var/lib/docker/containers\n\s{4}stream: all\n\s{2}combine_partial: false\n\s{2}cri.parse_flags: false\n},
           )
         }
@@ -96,10 +96,10 @@ describe 'filebeat::input' do
         it { is_expected.to compile }
 
         it {
-          is_expected.to contain_file('filebeat-test-array').with(
-            notify: 'Service[filebeat]',
+          is_expected.to contain_file('metricbeat-test-array').with(
+            notify: 'Service[metricbeat]',
           )
-          is_expected.to contain_file('filebeat-test-array').with_content(
+          is_expected.to contain_file('metricbeat-test-array').with_content(
             %r{- type: logs\n\s{2}paths:\n\s{2}- "/var/log/auth.log"\n\s{2}- "/var/log/syslog"\n- type: syslog\n\s{2}protocol.tcp:\n\s{4}host: 0.0.0.0:514\n},
           )
         }

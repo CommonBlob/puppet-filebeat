@@ -1,0 +1,588 @@
+#============================  Config Reloading ===============================
+
+# Config reloading allows to dynamically load modules. Each file which is
+# monitored must contain one or multiple modules as a list.
+metricbeat.config.modules:
+
+  # Glob pattern for configuration reloading
+  path: ${path.config}/modules.d/*.yml
+
+  # Period on which files under path should be checked for changes
+  reload.period: 10s
+
+  # Set to true to enable config reloading
+  reload.enabled: false
+
+# Maximum amount of time to randomly delay the start of a metricset. Use 0 to
+# disable startup delay.
+metricbeat.max_start_delay: 10s
+
+#============================= Elastic Cloud ==================================
+
+# These settings simplify using Metricbeat with the Elastic Cloud (https://cloud.elastic.co/).
+
+# The cloud.id setting overwrites the `output.elasticsearch.hosts` and
+# `setup.kibana.host` options.
+# You can find the `cloud.id` in the Elastic Cloud web UI.
+<%- if @metricbeat_config['cloud_id'] != nil -%>
+cloud.id: <%= @metricbeat_config['cloud_id'] %>
+<%- end -%>
+
+# The cloud.auth setting overwrites the `output.elasticsearch.username` and
+# `output.elasticsearch.password` settings. The format is `<user>:<pass>`.
+<%- if @metricbeat_config['cloud_auth'] != nil -%>
+cloud.auth: <%= @metricbeat_config['cloud_auth'] %>
+<%- end -%>
+#================================ Outputs =====================================
+
+<%- if @metricbeat_config['output']['elasticsearch'] != nil -%>
+#-------------------------- Elasticsearch output ------------------------------
+output.elasticsearch:
+  <%- if @metricbeat_config['output']['elasticsearch']['enabled'] != nil -%>
+  enabled: <%= @metricbeat_config['output']['elasticsearch']['enabled'] %>
+  <%- end -%>
+  hosts:
+  <%- @metricbeat_config['output']['elasticsearch']['hosts'].each do |host| -%>
+    - <%= host %>
+  <%- end -%>
+  <%- if @metricbeat_config['output']['elasticsearch']['loadbalance'] != nil -%>
+  loadbalance: <%= @metricbeat_config['output']['elasticsearch']['loadbalance'] %>
+  <%- end -%>
+  <%- if @metricbeat_config['output']['elasticsearch']['compression_level'] != nil -%>
+  compression_level: <%= @metricbeat_config['output']['elasticsearch']['compression_level'] %>
+  <%- end -%>
+  <%- if @metricbeat_config['output']['elasticsearch']['protocol'] != nil -%>
+  protocol: "<%= @metricbeat_config['output']['elasticsearch']['protocol'] %>"
+  <%- end -%>
+  <%- if @metricbeat_config['output']['elasticsearch']['username'] != nil -%>
+  username: "<%= @metricbeat_config['output']['elasticsearch']['username'] %>"
+  <%- end -%>
+  <%- if @metricbeat_config['output']['elasticsearch']['password'] != nil -%>
+  password: "<%= @metricbeat_config['output']['elasticsearch']['password'] %>"
+  <%- end -%>
+  <%- if @metricbeat_config['output']['elasticsearch']['parameters'] != nil && @metricbeat_config['output']['elasticsearch']['parameters'].length > 0 -%>
+  parameters:
+    <%- @metricbeat_config['output']['elasticsearch']['parameters'].each_pair do |k, v| -%>
+    <%= k %>: <%= v %>
+    <%- end -%>
+  <%- end -%>
+  <%- if @metricbeat_config['output']['elasticsearch']['worker'] != nil -%>
+  worker: <%= @metricbeat_config['output']['elasticsearch']['worker'] %>
+  <%- end -%>
+  <%- if @metricbeat_config['output']['elasticsearch']['index'] != nil -%>
+  index: "<%= @metricbeat_config['output']['elasticsearch']['index'] %>"
+  <%- end -%>
+  <%- if @metricbeat_config['output']['elasticsearch']['pipeline'] != nil -%>
+  pipeline: "<%= @metricbeat_config['output']['elasticsearch']['pipeline'] %>"
+  <%- end -%>
+  <%- if @metricbeat_config['output']['elasticsearch']['pipelines'] != nil -%>
+  pipelines:
+  <%- @metricbeat_config['output']['elasticsearch']['pipelines'].each do |pipeline| -%>
+    <%- if pipeline['name'] != nil -%>
+    - pipeline: "<%= pipeline['name'] %>"
+      when.equals:
+        <%= pipeline['filter'] %>: "<%= pipeline['pattern'] %>"
+    <%- end -%>
+  <%- end -%>
+  <%- end -%>
+  <%- if @metricbeat_config['output']['elasticsearch']['indices'] != nil -%>
+  indices:
+  <%- @metricbeat_config['output']['elasticsearch']['indices'].each do |indice| -%>
+    <%- if indice['name'] != nil -%>
+    - index: "<%= indice['name'] %>"
+      <%- if indice['pipeline'] != nil -%>
+      pipeline: "<%= indice['pipeline'] %>"
+      <%- end -%>
+      when.contains:
+        <%= indice['filter'] %>: "<%= indice['pattern'] %>"
+    <%- end -%>
+  <%- end -%>
+  <%- end -%>
+  <%- if @metricbeat_config['output']['elasticsearch']['path'] != nil -%>
+  path: "<%= @metricbeat_config['output']['elasticsearch']['path'] %>"
+  <%- end -%>
+  <%- if @metricbeat_config['output']['elasticsearch']['proxy_url'] != nil -%>
+  proxy_url: "<%= @metricbeat_config['output']['elasticsearch']['proxy_url'] %>"
+  <%- end -%>
+  <%- if @metricbeat_config['output']['elasticsearch']['max_retries'] != nil -%>
+  max_retries: <%= @metricbeat_config['output']['elasticsearch']['max_retries'] %>
+  <%- end -%>
+  <%- if @metricbeat_config['output']['elasticsearch']['bulk_max_size'] != nil -%>
+  bulk_max_size: <%= @metricbeat_config['output']['elasticsearch']['bulk_max_size'] %>
+  <%- end -%>
+  <%- if @metricbeat_config['output']['elasticsearch']['timeout'] != nil -%>
+  timeout: <%= @metricbeat_config['output']['elasticsearch']['timeout'] %>
+  <%- end -%>
+  <%- if @metricbeat_config['output']['elasticsearch']['flush_interval'] != nil -%>
+  flush_interval: <%= @metricbeat_config['output']['elasticsearch']['flush_interval'] %>
+  <%- end -%>
+  <%- if @metricbeat_config['output']['elasticsearch']['template'] != nil -%>
+  template:
+    <%- if @metricbeat_config['output']['elasticsearch']['template']['enabled'] != nil -%>
+    enabled: <%= @metricbeat_config['output']['elasticsearch']['template']['enabled'] %>
+    <%- end -%>
+    <%- if @metricbeat_config['output']['elasticsearch']['template']['name'] != nil -%>
+    name: "<%= @metricbeat_config['output']['elasticsearch']['template']['name'] %>"
+    <%- end -%>
+    <%- if @metricbeat_config['output']['elasticsearch']['template']['path'] != nil -%>
+    path: "<%= @metricbeat_config['output']['elasticsearch']['template']['path'] %>"
+    <%- end -%>
+    <%- if @metricbeat_config['output']['elasticsearch']['template']['overwrite'] != nil -%>
+    overwrite: <%= @metricbeat_config['output']['elasticsearch']['template']['name'] %>
+    <%- end -%>
+    <%- if @metricbeat_config['output']['elasticsearch']['template']['versions']['2.x'] != nil -%>
+    <%- if @metricbeat_config['output']['elasticsearch']['template']['versions']['2.x']['enabled'] != nil -%>
+    versions.2x.enabled: <%= @metricbeat_config['output']['elasticsearch']['template']['versions']['2.x']['enabled'] %>
+    <%- end -%>
+    <%- if @metricbeat_config['output']['elasticsearch']['template']['versions']['2.x']['path'] != nil -%>
+    versions.2x.path: "<%= @metricbeat_config['output']['elasticsearch']['template']['versions']['2.x']['path'] %>"
+    <%- end -%>
+    <%- end -%>
+  <%- end -%>
+  <%- if @metricbeat_config['output']['elasticsearch']['ssl'] != nil -%>
+  ssl:
+    <%- if @metricbeat_config['output']['elasticsearch']['ssl']['enabled'] != nil -%>
+    enabled: <%= @metricbeat_config['output']['elasticsearch']['ssl']['enabled'] %>
+    <%- end -%>
+    <%- if @metricbeat_config['output']['elasticsearch']['ssl']['verification_mode'] != nil -%>
+    verification_mode: <%= @metricbeat_config['output']['elasticsearch']['ssl']['verification_mode'] %>
+    <%- end -%>
+    <%- if @metricbeat_config['output']['elasticsearch']['ssl']['supported_protocols'] != nil -%>
+    supported_protocols:
+    <%- @metricbeat_config['output']['elasticsearch']['ssl']['supported_protocols'].each do |protocol| -%>
+      - <%= protocol %>
+      <%- end -%>
+    <%- end -%>
+    <%- if @metricbeat_config['output']['elasticsearch']['ssl']['certificate_authorities'] != nil -%>
+    certificate_authorities:
+    <%- @metricbeat_config['output']['elasticsearch']['ssl']['certificate_authorities'].each do |ca| -%>
+      - <%= ca %>
+      <%- end -%>
+      <%- end -%>
+    <%- if @metricbeat_config['output']['elasticsearch']['ssl']['certificate'] != nil -%>
+    certificate: "<%= @metricbeat_config['output']['elasticsearch']['ssl']['certificate'] %>"
+    <%- end -%>
+    <%- if @metricbeat_config['output']['elasticsearch']['ssl']['key'] != nil -%>
+    key: "<%= @metricbeat_config['output']['elasticsearch']['ssl']['key'] %>"
+    <%- end -%>
+    <%- if @metricbeat_config['output']['elasticsearch']['ssl']['key_passphrase'] != nil -%>
+    key_passphrase: '<%= @metricbeat_config['output']['elasticsearch']['ssl']['key_passphrase'] %>'
+    <%- end -%>
+    <%- if @metricbeat_config['output']['elasticsearch']['ssl']['cipher_suites'] != nil -%>
+    cipher_suites:
+    <%- @metricbeat_config['output']['elasticsearch']['ssl']['cipher_suites'].each do |cipher_suite| -%>
+      - <%= cipher_suite %>
+      <%- end -%>
+    <%- end -%>
+    <%- if @metricbeat_config['output']['elasticsearch']['ssl']['curve_types'] != nil -%>
+    curve_types:
+    <%- @metricbeat_config['output']['elasticsearch']['ssl']['curve_types'].each do |curve_type| -%>
+      - <%= curve_type %>
+      <%- end -%>
+    <%- end -%>
+    <%- end -%>
+<%- end -%>
+<%- if @metricbeat_config['output']['logstash'] != nil -%>
+#----------------------------- Logstash output --------------------------------
+output.logstash:
+  <%- if @metricbeat_config['output']['logstash']['enabled'] != nil -%>
+  enabled: <%= @metricbeat_config['output']['logstash']['enabled'] %>
+  <%- end -%>
+  hosts:
+  <%- @metricbeat_config['output']['logstash']['hosts'].each do |host| -%>
+    - <%= host %>
+  <%- end -%>
+  <%- if @metricbeat_config['output']['logstash']['ssl_certificate'] != nil -%>
+  ssl.certificate: <%= @metricbeat_config['output']['logstash']['ssl_certificate'] %>
+  <%- end -%>
+  <%- if @metricbeat_config['output']['logstash']['ssl_key'] != nil -%>
+  ssl.key: <%= @metricbeat_config['output']['logstash']['ssl_key'] %>
+  <%- end -%>
+  <%- if @metricbeat_config['output']['logstash']['worker'] != nil -%>
+  worker: <%= @metricbeat_config['output']['logstash']['worker'] %>
+  <%- end -%>
+  <%- if @metricbeat_config['output']['logstash']['compression_level'] != nil -%>
+  compression_level: <%= @metricbeat_config['output']['logstash']['compression_level'] %>
+  <%- end -%>
+  <%- if @metricbeat_config['output']['logstash']['loadbalance'] != nil -%>
+  loadbalance: <%= @metricbeat_config['output']['logstash']['loadbalance'] %>
+  <%- end -%>
+  <%- if @metricbeat_config['output']['logstash']['pipelining'] != nil -%>
+  pipelining: <%= @metricbeat_config['output']['logstash']['pipelining'] %>
+  <%- end -%>
+  <%- if @metricbeat_config['output']['logstash']['index'] != nil -%>
+  index: <%= @metricbeat_config['output']['logstash']['index'] %>
+  <%- end -%>
+  <%- if @metricbeat_config['output']['logstash']['proxy_url'] != nil -%>
+  proxy_url: <%= @metricbeat_config['output']['logstash']['proxy_url'] %>
+  <%- end -%>
+  <%- if @metricbeat_config['output']['logstash']['proxy_use_local_resolver'] != nil -%>
+  proxy_use_local_resolver: <%= @metricbeat_config['output']['logstash']['proxy_use_local_resolver'] %>
+  <%- end -%>
+  <%- if @metricbeat_config['output']['logstash']['ssl'] != nil -%>
+  ssl:
+    <%- if @metricbeat_config['output']['logstash']['ssl']['enabled'] == false -%>
+    enabled: false
+    <%- else -%>
+    enabled: true
+    <%- end -%>
+    <%- if @metricbeat_config['output']['logstash']['ssl']['verification_mode'] != nil -%>
+    verification_mode: <%= @metricbeat_config['output']['logstash']['ssl']['verification_mode'] %>
+    <%- end -%>
+    <%- if @metricbeat_config['output']['logstash']['ssl']['certificate_authorities'] != nil -%>
+    certificate_authorities:
+    <%- @metricbeat_config['output']['logstash']['ssl']['certificate_authorities'].each do |ca| -%>
+      - <%= ca %>
+    <%- end -%>
+    <%- end -%>
+    <%- if @metricbeat_config['output']['logstash']['ssl']['certificate'] != nil -%>
+    certificate: "<%= @metricbeat_config['output']['logstash']['ssl']['certificate'] %>"
+    <%- end -%>
+    <%- if @metricbeat_config['output']['logstash']['ssl']['key'] != nil -%>
+    key: "<%= @metricbeat_config['output']['logstash']['ssl']['key'] %>"
+    <%- end -%>
+    <%- if @metricbeat_config['output']['logstash']['ssl']['key_passphrase'] != nil -%>
+    key_passphrase: '<%= @metricbeat_config['output']['logstash']['ssl']['key_passphrase'] %>'
+    <%- end -%>
+    <%- if @metricbeat_config['output']['logstash']['ssl']['cipher_suites'] != nil -%>
+    cipher_suites:
+    <%- @metricbeat_config['output']['logstash']['ssl']['cipher_suites'].each do |cipher_suite| -%>
+      - <%= cipher_suite %>
+    <%- end -%>
+    <%- end -%>
+    <%- if @metricbeat_config['output']['logstash']['ssl']['curve_types'] != nil -%>
+    curve_types:
+    <%- @metricbeat_config['output']['logstash']['ssl']['curve_types'].each do |curve_type| -%>
+      - <%= curve_type %>
+    <%- end -%>
+    <%- end -%>
+  <%- end -%>
+<%- end -%>
+<%- if @metricbeat_config['output']['kafka'] != nil -%>
+#------------------------------- Kafka output ---------------------------------
+output.kafka:
+  <%- if @metricbeat_config['output']['kafka']['enabled'] != nil -%>
+  enabled: <%= @metricbeat_config['output']['kafka']['enabled'] %>
+  <%- end -%>
+  hosts:
+  <%- @metricbeat_config['output']['kafka']['hosts'].each do |host| -%>
+    - <%= host %>
+  <%- end -%>
+  <%- if @metricbeat_config['output']['kafka']['topic'] != nil -%>
+  topic: <%= @metricbeat_config['output']['kafka']['topic'] %>
+  <%- end -%>
+  <%- if @metricbeat_config['output']['kafka']['round_robin'] != nil -%>
+  round_robin:
+    group_events: <%= @metricbeat_config['output']['kafka']['round_robin']['group_events'] %>
+  <%- end -%>
+  <%- if @metricbeat_config['output']['kafka']['key'] != nil -%>
+  key: '<%= @metricbeat_config['output']['kafka']['key'] %>'
+  <%- end -%>
+  <%- if @metricbeat_config['output']['kafka']['codec.format'] != nil -%>
+  codec.format:
+    <%- if @metricbeat_config['output']['kafka']['codec.format']['string'] != nil -%>
+    string: <%= @metricbeat_config['output']['kafka']['codec.format']['string'] %>
+    <%- end -%>
+  <%- end -%>
+  <%- if @metricbeat_config['output']['kafka']['partition'] != nil and @metricbeat_config['output']['kafka']['partition']['hash'] != nil -%>
+  partition.hash:
+    <%- if @metricbeat_config['output']['kafka']['partition']['hash']['reachable_only'] != nil -%>
+    reachable_only: <%= @metricbeat_config['output']['kafka']['partition']['hash']['reachable_only'] %>
+    <%- end -%>
+    <%- if @metricbeat_config['output']['kafka']['partition']['hash']['random'] != nil -%>
+    random: <%= @metricbeat_config['output']['kafka']['partition']['hash']['random'] %>
+    <%- end -%>
+    <%- if @metricbeat_config['output']['kafka']['partition']['hash']['hash'] != nil -%>
+    hash:
+    <%- @metricbeat_config['output']['kafka']['partition']['hash']['hash'].each do |value| -%>
+      - <%= value %>
+    <%- end -%>
+    <%- end -%>
+  <%- end -%>
+  <%- if @metricbeat_config['output']['kafka']['username'] != nil -%>
+  username: '<%= @metricbeat_config['output']['kafka']['username'] %>'
+  <%- end -%>
+  <%- if @metricbeat_config['output']['kafka']['password'] != nil -%>
+  password: '<%= @metricbeat_config['output']['kafka']['password'] %>'
+  <%- end -%>
+  <%- if @metricbeat_config['output']['kafka']['version'] != nil -%>
+  version: <%= @metricbeat_config['output']['kafka']['version'] %>
+  <%- end -%>
+  <%- if @metricbeat_config['output']['kafka']['metadata'] != nil -%>
+  metadata:
+    <%- if @metricbeat_config['output']['kafka']['retry']['max'] != nil -%>
+    retry.max: 3
+    <%- end -%>
+    <%- if @metricbeat_config['output']['kafka']['retry']['backoff'] != nil -%>
+    retry.backoff: 3
+    <%- end -%>
+    <%- if @metricbeat_config['output']['kafka']['retry']['frequency'] != nil -%>
+    retry.frequency: 3
+    <%- end -%>
+  <%- end -%>
+  <%- if @metricbeat_config['output']['kafka']['worker'] != nil -%>
+  worker: <%= @metricbeat_config['output']['kafka']['worker'] %>
+  <%- end -%>
+  <%- if @metricbeat_config['output']['kafka']['max_retries'] != nil -%>
+  max_retries: <%= @metricbeat_config['output']['kafka']['max_retries'] %>
+  <%- end -%>
+  <%- if @metricbeat_config['output']['kafka']['bulk_max_size'] != nil -%>
+  bulk_max_size: <%= @metricbeat_config['output']['kafka']['bulk_max_size'] %>
+  <%- end -%>
+  <%- if @metricbeat_config['output']['kafka']['timeout'] != nil -%>
+  timeout: <%= @metricbeat_config['output']['kafka']['timeout'] %>
+  <%- end -%>
+  <%- if @metricbeat_config['output']['kafka']['broker_timeout'] != nil -%>
+  broker_timeout: <%= @metricbeat_config['output']['kafka']['broker_timeout'] %>
+  <%- end -%>
+  <%- if @metricbeat_config['output']['kafka']['channel_buffer_size'] != nil -%>
+  channel_buffer_size: <%= @metricbeat_config['output']['kafka']['channel_buffer_size'] %>
+  <%- end -%>
+  <%- if @metricbeat_config['output']['kafka']['keep_alive'] != nil -%>
+  keep_alive: <%= @metricbeat_config['output']['kafka']['keep_alive'] %>
+  <%- end -%>
+  <%- if @metricbeat_config['output']['kafka']['compression'] != nil -%>
+  compression: <%= @metricbeat_config['output']['kafka']['compression'] %>
+  <%- end -%>
+  <%- if @metricbeat_config['output']['kafka']['max_message_bytes'] != nil -%>
+  max_message_bytes: <%= @metricbeat_config['output']['kafka']['max_message_bytes'] %>
+  <%- end -%>
+  <%- if @metricbeat_config['output']['kafka']['required_acks'] != nil -%>
+  required_acks: <%= @metricbeat_config['output']['kafka']['required_acks'] %>
+  <%- end -%>
+  <%- if @metricbeat_config['output']['kafka']['flush_interval'] != nil -%>
+  flush_interval: <%= @metricbeat_config['output']['kafka']['flush_interval'] %>
+  <%- end -%>
+  <%- if @metricbeat_config['output']['kafka']['client_id'] != nil -%>
+  client_id: <%= @metricbeat_config['output']['kafka']['client_id'] %>
+  <%- end -%>
+  <%- if @metricbeat_config['output']['kafka']['ssl'] != nil -%>
+  ssl:
+    <%- if @metricbeat_config['output']['kafka']['ssl']['enabled'] != nil -%>
+    enabled: <%= @metricbeat_config['output']['kafka']['ssl']['enabled'] %>
+    <%- end -%>
+    <%- if @metricbeat_config['output']['kafka']['ssl']['verification_mode'] != nil -%>
+    verification_mode: <%= @metricbeat_config['output']['kafka']['ssl']['verification_mode'] %>
+    <%- end -%>
+    <%- if @metricbeat_config['output']['kafka']['ssl']['supported_protocols'] != nil -%>
+    supported_protocols:
+    <%- @metricbeat_config['output']['kafka']['ssl']['supported_protocols'].each do |protocol| -%>
+      - <%= protocol %>
+    <%- end -%>
+    <%- end -%>
+    <%- if @metricbeat_config['output']['kafka']['ssl']['certificate_authorities'] != nil -%>
+    certificate_authorities:
+    <%- @metricbeat_config['output']['kafka']['ssl']['certificate_authorities'].each do |ca| -%>
+      - <%= ca %>
+    <%- end -%>
+    <%- end -%>
+    <%- if @metricbeat_config['output']['kafka']['ssl']['certificate'] != nil -%>
+    certificate: "<%= @metricbeat_config['output']['kafka']['ssl']['certificate'] %>"
+    <%- end -%>
+    <%- if @metricbeat_config['output']['kafka']['ssl']['key'] != nil -%>
+    key: "<%= @metricbeat_config['output']['kafka']['ssl']['key'] %>"
+    <%- end -%>
+    <%- if @metricbeat_config['output']['kafka']['ssl']['key_passphrase'] != nil -%>
+    key_passphrase: '<%= @metricbeat_config['output']['kafka']['ssl']['key_passphrase'] %>'
+    <%- end -%>
+    <%- if @metricbeat_config['output']['kafka']['ssl']['cipher_suites'] != nil -%>
+    cipher_suites:
+    <%- @metricbeat_config['output']['kafka']['ssl']['cipher_suites'].each do |cipher_suite| -%>
+      - <%= cipher_suite %>
+    <%- end -%>
+    <%- end -%>
+    <%- if @metricbeat_config['output']['kafka']['ssl']['curve_types'] != nil -%>
+    curve_types:
+    <%- @metricbeat_config['output']['kafka']['ssl']['curve_types'].each do |curve_type| -%>
+      - <%= curve_type %>
+    <%- end -%>
+    <%- end -%>
+  <%- end -%>
+<%- end -%>
+<%- if @metricbeat_config['output']['redis'] != nil -%>
+#------------------------------- Redis output ---------------------------------
+output.redis:
+  <%- if @metricbeat_config['output']['redis']['enabled'] != nil -%>
+  enabled: <%= @metricbeat_config['output']['redis']['enabled'] %>
+  <%- end -%>
+  hosts:
+  <%- @metricbeat_config['output']['redis']['hosts'].each do |host| -%>
+    - <%= host %>
+  <%- end -%>
+  <%- if @metricbeat_config['output']['redis']['port'] != nil -%>
+  port: <%= @metricbeat_config['output']['redis']['port'] %>
+  <%- end -%>
+  <%- if @metricbeat_config['output']['redis']['key'] != nil -%>
+  key: <%= @metricbeat_config['output']['redis']['key'] %>
+  <%- end -%>
+  <%- if @metricbeat_config['output']['redis']['password'] != nil -%>
+  password: <%= @metricbeat_config['output']['redis']['password'] %>
+  <%- end -%>
+  <%- if @metricbeat_config['output']['redis']['db'] != nil -%>
+  db: <%= @metricbeat_config['output']['redis']['db'] %>
+  <%- end -%>
+  <%- if @metricbeat_config['output']['redis']['datetype'] != nil -%>
+  datetype: <%= @metricbeat_config['output']['redis']['datetype'] %>
+  <%- end -%>
+  <%- if @metricbeat_config['output']['redis']['worker'] != nil -%>
+  worker: <%= @metricbeat_config['output']['redis']['worker'] %>
+  <%- end -%>
+  <%- if @metricbeat_config['output']['redis']['loadbalance'] != nil -%>
+  loadbalance: <%= @metricbeat_config['output']['redis']['loadbalance'] %>
+  <%- end -%>
+  <%- if @metricbeat_config['output']['redis']['timeout'] != nil -%>
+  timeout: <%= @metricbeat_config['output']['redis']['timeout'] %>
+  <%- end -%>
+  <%- if @metricbeat_config['output']['redis']['max_retries'] != nil -%>
+  max_retries: <%= @metricbeat_config['output']['redis']['max_retries'] %>
+  <%- end -%>
+  <%- if @metricbeat_config['output']['redis']['bulk_max_size'] != nil -%>
+  bulk_max_size: <%= @metricbeat_config['output']['redis']['bulk_max_size'] %>
+  <%- end -%>
+  <%- if @metricbeat_config['output']['redis']['proxy_url'] != nil -%>
+  proxy_url: <%= @metricbeat_config['output']['redis']['proxy_url'] %>
+  <%- end -%>
+  <%- if @metricbeat_config['output']['redis']['proxy_use_local_resolver'] != nil -%>
+  proxy_use_local_resolver: <%= @metricbeat_config['output']['redis']['proxy_use_local_resolver'] %>
+  <%- end -%>
+  <%- if @metricbeat_config['output']['redis']['ssl'] != nil -%>
+  ssl:
+    <%- if @metricbeat_config['output']['redis']['ssl']['enabled'] != nil -%>
+    enabled: <%= @metricbeat_config['output']['logstash']['ssl']['enabled'] %>
+    <%- end -%>
+    <%- if @metricbeat_config['output']['redis']['ssl']['verification_mode'] != nil -%>
+    verification_mode: <%= @metricbeat_config['output']['redis']['ssl']['verification_mode'] %>
+    <%- end -%>
+    <%- if @metricbeat_config['output']['redis']['ssl']['supported_protocols'] != nil -%>
+    supported_protocols:
+    <%- @metricbeat_config['output']['redis']['ssl']['supported_protocols'].each do |protocol| -%>
+      - <%= protocol %>
+    <%- end -%>
+    <%- end -%>
+    <%- if @metricbeat_config['output']['redis']['ssl']['certificate_authorities'] != nil -%>
+    certificate_authorities:
+    <%- @metricbeat_config['output']['redis']['ssl']['certificate_authorities'].each do |ca| -%>
+      - <%= ca %>
+    <%- end -%>
+    <%- end -%>
+    <%- if @metricbeat_config['output']['redis']['ssl']['certificate'] != nil -%>
+    certificate: "<%= @metricbeat_config['output']['redis']['ssl']['certificate'] %>"
+    <%- end -%>
+    <%- if @metricbeat_config['output']['redis']['ssl']['key'] != nil -%>
+    key: "<%= @metricbeat_config['output']['redis']['ssl']['key'] %>"
+    <%- end -%>
+    <%- if @metricbeat_config['output']['redis']['ssl']['key_passphrase'] != nil -%>
+    key_passphrase: '<%= @metricbeat_config['output']['redis']['ssl']['key_passphrase'] %>'
+    <%- end -%>
+    <%- if @metricbeat_config['output']['redis']['ssl']['cipher_suites'] != nil -%>
+    cipher_suites:
+    <%- @metricbeat_config['output']['redis']['ssl']['cipher_suites'].each do |cipher_suite| -%>
+      - <%= cipher_suite %>
+    <%- end -%>
+    <%- end -%>
+    <%- if @metricbeat_config['output']['redis']['ssl']['curve_types'] != nil -%>
+    curve_types:
+    <%- @metricbeat_config['output']['redis']['ssl']['curve_types'].each do |curve_type| -%>
+      - <%= curve_type %>
+    <%- end -%>
+    <%- end -%>
+  <%- end -%>
+<%- end -%>
+<%- if @metricbeat_config['output']['file'] != nil -%>
+#------------------------------- File output ----------------------------------
+output.file:
+  <%- if @metricbeat_config['output']['file']['enabled'] != nil -%>
+  enabled: <%= @metricbeat_config['output']['file']['enabled'] %>
+  <%- end -%>
+  <%- if @metricbeat_config['output']['file']['path'] != nil -%>
+  path: "<%= @metricbeat_config['output']['file']['path'] %>"
+  <%- end -%>
+  <%- if @metricbeat_config['output']['file']['filename'] != nil -%>
+  filename: <%= @metricbeat_config['output']['file']['filename'] %>
+  <%- end -%>
+  <%- if @metricbeat_config['output']['file']['rotate_every_kb'] != nil -%>
+  rotate_every_kb: <%= @metricbeat_config['output']['file']['rotate_every_kb'] %>
+  <%- end -%>
+  <%- if @metricbeat_config['output']['file']['number_of_files'] != nil -%>
+  number_of_files: <%= @metricbeat_config['output']['file']['number_of_files'] %>
+  <%- end -%>
+<%- end -%>
+<%- if @metricbeat_config['output']['console'] != nil -%>
+#-------------------------- Console output ------------------------------------
+output.console:
+  <%- if @metricbeat_config['output']['console']['enabled'] != nil -%>
+  enabled: <%= @metricbeat_config['output']['console']['enabled'] %>
+  <%- end -%>
+  <%- if @metricbeat_config['output']['console']['pretty'] != nil -%>
+  pretty: <%= @metricbeat_config['output']['console']['pretty'] %>
+  <%- end -%>
+  <%- if @metricbeat_config['output']['console']['bulk_max_size'] != nil -%>
+  bulk_max_size: <%= @metricbeat_config['output']['console']['bulk_max_size'] %>
+  <%- end -%>
+<%- end -%>
+
+#================================= Paths ======================================
+
+# The home path for the Metricbeat installation. This is the default base path
+# for all other path settings and for miscellaneous files that come with the
+# distribution (for example, the sample dashboards).
+# If not set by a CLI flag or in the configuration file, the default for the
+# home path is the location of the binary.
+#path.home:
+
+# The configuration path for the Metricbeat installation. This is the default
+# base path for configuration files, including the main YAML configuration file
+# and the Elasticsearch template file. If not set by a CLI flag or in the
+# configuration file, the default for the configuration path is the home path.
+#path.config: ${path.home}
+
+# The data path for the Metricbeat installation. This is the default base path
+# for all the files in which Metricbeat needs to store its data. If not set by a
+# CLI flag or in the configuration file, the default for the data path is a data
+# subdirectory inside the home path.
+#path.data: ${path.home}/data
+
+# The logs path for a Metricbeat installation. This is the default location for
+# the Beat's log files. If not set by a CLI flag or in the configuration file,
+# the default for the logs path is a logs subdirectory inside the home path.
+#path.logs: ${path.home}/logs
+
+#================================ Logging =====================================
+<%- if @metricbeat_config['logging']['level'] != nil -%>
+logging.level: <%= @metricbeat_config['logging']['level'] %>
+<%- end -%>
+<%- if @metricbeat_config['logging']['selectors'] != nil && @metricbeat_config['logging']['selectors'].length > 0 -%>
+logging.selectors:
+<%- @metricbeat_config['logging']['selectors'].each do |selector| -%>
+  - <%= selector %>
+<%- end -%>
+<%- end -%>
+<%- if @metricbeat_config['logging']['to_syslog'] != nil -%>
+logging.to_syslog: <%= @metricbeat_config['logging']['to_syslog'] %>
+<%- end -%>
+<%- if @metricbeat_config['logging']['metrics'] != nil -%>
+<%- if @metricbeat_config['logging']['metrics']['enabled'] != nil -%>
+logging.metrics.enabled: <%= @metricbeat_config['logging']['metrics']['enabled'] %>
+<%- end -%>
+<%- if @metricbeat_config['logging']['metrics']['period'] != nil -%>
+logging.metrics.period: <%= @metricbeat_config['logging']['metrics']['period'] %>
+<%- end -%>
+<%- end -%>
+<%- if @metricbeat_config['logging']['to_files'] != nil -%>
+logging.to_files: <%= @metricbeat_config['logging']['to_files'] %>
+<%- end -%>
+<%- if @metricbeat_config['logging']['files'] != nil -%>
+logging.files:
+  <%- if @metricbeat_config['logging']['files']['path'] != nil -%>
+  path: <%= @metricbeat_config['logging']['files']['path'] %>
+  <%- end -%>
+  <%- if @metricbeat_config['logging']['files']['name'] != nil -%>
+  name: <%= @metricbeat_config['logging']['files']['name'] %>
+  <%- end -%>
+  <%- if @metricbeat_config['logging']['files']['rotateeverybytes'] != nil -%>
+  rotateeverybytes: <%= @metricbeat_config['logging']['files']['rotateeverybytes'] %>
+  <%- end -%>
+  <%- if @metricbeat_config['logging']['files']['keepfiles'] != nil -%>
+  keepfiles: <%= @metricbeat_config['logging']['files']['keepfiles'] %>
+  <%- end -%>
+<%- end -%>

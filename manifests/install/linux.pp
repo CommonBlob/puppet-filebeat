@@ -1,15 +1,15 @@
-# filebeat::install::linux
+# metricbeat::install::linux
 #
-# Install the linux filebeat package
+# Install the linux metricbeat package
 #
-# @summary A simple class to install the filebeat package
+# @summary A simple class to install the metricbeat package
 #
-class filebeat::install::linux {
+class metricbeat::install::linux {
   if $::kernel != 'Linux' {
-    fail('filebeat::install::linux shouldn\'t run on Windows')
+    fail('metricbeat::install::linux shouldn\'t run on Windows')
   }
 
-  package {'filebeat':
-    ensure => $filebeat::package_ensure,
+  package {'metricbeat':
+    ensure => $metricbeat::package_ensure,
   }
 }

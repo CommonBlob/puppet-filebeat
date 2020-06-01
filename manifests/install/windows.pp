@@ -1,27 +1,27 @@
-# filebeat::install::windows
+# metricbeat::install::windows
 #
-# Download and install filebeat on Windows
+# Download and install metricbeat on Windows
 #
-# @summary A private class that installs filebeat on Windows
+# @summary A private class that installs metricbeat on Windows
 #
-class filebeat::install::windows {
+class metricbeat::install::windows {
   # I'd like to use chocolatey to do this install, but the package for chocolatey is
   # failing for updates and seems rather unpredictable at the moment. We may revisit
   # that in the future as it would greatly simplify this code and basically reduce it to
   # one package resource with type => chocolatey....
 
-  $filename = regsubst($filebeat::real_download_url, '^https?.*\/([^\/]+)\.[^.].*', '\1')
-  $foldername = 'Filebeat'
-  $zip_file = join([$filebeat::tmp_dir, "${filename}.zip"], '/')
-  $install_folder = join([$filebeat::install_dir, $foldername], '/')
+  $filename = regsubst($metricbeat::real_download_url, '^https?.*\/([^\/]+)\.[^.].*', '\1')
+  $foldername = 'Metricbeat'
+  $zip_file = join([$metricbeat::tmp_dir, "${filename}.zip"], '/')
+  $install_folder = join([$metricbeat::install_dir, $foldername], '/')
   $version_file = join([$install_folder, $filename], '/')
 
   Exec {
     provider => powershell,
   }
 
-  if ! defined(File[$filebeat::install_dir]) {
-    file { $filebeat::install_dir:
+  if ! defined(File[$metricbeat::install_dir]) {
+    file { $metricbeat::install_dir:
       ensure => directory,
     }
   }
@@ -31,17 +31,29 @@ class filebeat::install::windows {
   # https://github.com/voxpupuli/puppet-archive/blob/master/manifests/init.pp#L31
   # I'm not choosing to impose those dependencies on anyone at this time...
   archive { $zip_file:
-    source       => $filebeat::real_download_url,
+    source       => $metricbeat::real_download_url,
     cleanup      => false,
     creates      => $version_file,
-    proxy_server => $filebeat::proxy_address,
+    proxy_server => $metricbeat::proxy_address,
+  }
+
+  # Core editions of Windows Server do not have a shell as such, so use the Shell.Application COM object doesn't work.
+  # Expand-Archive is a native powershell cmdlet which ships with Powershell 5, which in turn ships with Windows 10 and 
+  # Windows Server 2016 and newer.
+  if ((versioncmp($::operatingsystemrelease, '2016') > 0) or (versioncmp($::operatingsystemrelease, '10') == 0))
+  {
+    $unzip_command = "Expand-Archive ${zip_file} \"${metricbeat::install_dir}\""
+  }
+  else
+  {
+    $unzip_command = "\$sh=New-Object -COM Shell.Application;\$sh.namespace((Convert-Path '${metricbeat::install_dir}')).Copyhere(\$sh.namespace((Convert-Path '${zip_file}')).items(), 16)" # lint:ignore:140chars
   }
 
   exec { "unzip ${filename}":
-    command => "\$sh=New-Object -COM Shell.Application;\$sh.namespace((Convert-Path '${filebeat::install_dir}')).Copyhere(\$sh.namespace((Convert-Path '${zip_file}')).items(), 16)", # lint:ignore:140chars
+    command => $unzip_command,
     creates => $version_file,
     require => [
-      File[$filebeat::install_dir],
+      File[$metricbeat::install_dir],
       Archive[$zip_file],
     ],
   }
@@ -55,14 +67,14 @@ class filebeat::install::windows {
 
   # You can't remove the old dir while the service has files locked...
   exec { "stop service ${filename}":
-    command => 'Set-Service -Name filebeat -Status Stopped',
+    command => 'Set-Service -Name metricbeat -Status Stopped',
     creates => $version_file,
-    onlyif  => 'if(Get-WmiObject -Class Win32_Service -Filter "Name=\'filebeat\'") {exit 0} else {exit 1}',
+    onlyif  => 'if(Get-WmiObject -Class Win32_Service -Filter "Name=\'metricbeat\'") {exit 0} else {exit 1}',
     require => Exec["unzip ${filename}"],
   }
 
   exec { "rename ${filename}":
-    command => "Remove-Item '${install_folder}' -Recurse -Force -ErrorAction SilentlyContinue;Rename-Item '${filebeat::install_dir}/${filename}' '${install_folder}'", # lint:ignore:140chars
+    command => "Remove-Item '${install_folder}' -Recurse -Force -ErrorAction SilentlyContinue;Rename-Item '${metricbeat::install_dir}/${filename}' '${install_folder}'", # lint:ignore:140chars
     creates => $version_file,
     require => Exec["stop service ${filename}"],
   }
@@ -75,7 +87,7 @@ class filebeat::install::windows {
 
   exec { "install ${filename}":
     cwd         => $install_folder,
-    command     => './install-service-filebeat.ps1',
+    command     => './install-service-metricbeat.ps1',
     refreshonly => true,
     subscribe   => Exec["mark ${filename}"],
   }

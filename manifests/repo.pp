@@ -1,27 +1,27 @@
-# filebeat::repo
+# metricbeat::repo
 #
-# Manage the repository for Filebeat (Linux only for now)
+# Manage the repository for Metricbeat (Linux only for now)
 #
-# @summary Manages the yum, apt, and zypp repositories for Filebeat
-class filebeat::repo {
-  $debian_repo_url = "https://artifacts.elastic.co/packages/${filebeat::major_version}.x/apt"
-  $yum_repo_url = "https://artifacts.elastic.co/packages/${filebeat::major_version}.x/yum"
+# @summary Manages the yum, apt, and zypp repositories for Metricbeat
+class metricbeat::repo {
+  $debian_repo_url = "https://artifacts.elastic.co/packages/${metricbeat::major_version}.x/apt"
+  $yum_repo_url = "https://artifacts.elastic.co/packages/${metricbeat::major_version}.x/yum"
 
   case $::osfamily {
     'Debian': {
-      if $::filebeat::manage_apt == true {
+      if $::metricbeat::manage_apt == true {
         include ::apt
       }
 
-      Class['apt::update'] -> Package['filebeat']
+      Class['apt::update'] -> Package['metricbeat']
 
       if !defined(Apt::Source['beats']){
         apt::source { 'beats':
-          ensure   => $::filebeat::alternate_ensure,
+          ensure   => $::metricbeat::alternate_ensure,
           location => $debian_repo_url,
           release  => 'stable',
           repos    => 'main',
-          pin      => $::filebeat::repo_priority,
+          pin      => $::metricbeat::repo_priority,
           key      => {
             id     => '46095ACC8548582C1A2699A9D27D666CD88E42B4',
             source => 'https://artifacts.elastic.co/GPG-KEY-elasticsearch',
@@ -32,12 +32,12 @@ class filebeat::repo {
     'RedHat', 'Linux': {
       if !defined(Yumrepo['beats']){
         yumrepo { 'beats':
-          ensure   => $::filebeat::alternate_ensure,
+          ensure   => $::metricbeat::alternate_ensure,
           descr    => 'elastic beats repo',
           baseurl  => $yum_repo_url,
           gpgcheck => 1,
           gpgkey   => 'https://artifacts.elastic.co/GPG-KEY-elasticsearch',
-          priority => $::filebeat::repo_priority,
+          priority => $::metricbeat::repo_priority,
           enabled  => 1,
           notify   => Exec['flush-yum-cache'],
         }
@@ -57,7 +57,7 @@ class filebeat::repo {
       }
       if !defined(Zypprepo['beats']){
         zypprepo { 'beats':
-          ensure      => $::filebeat::alternate_ensure,
+          ensure      => $::metricbeat::alternate_ensure,
           baseurl     => $yum_repo_url,
           enabled     => 1,
           autorefresh => 1,
@@ -69,7 +69,7 @@ class filebeat::repo {
       }
     }
     default: {
-      fail($filebeat::osfamily_fail_message)
+      fail($metricbeat::osfamily_fail_message)
     }
   }
 
