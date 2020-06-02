@@ -27,6 +27,7 @@ class metricbeat::params {
   $logging                  = {}
   $run_options              = {}
   $modules                  = []
+  $modulesd                 = {}
   $kernel_fail_message      = "${::kernel} is not supported by metricbeat."
   $osfamily_fail_message    = "${::osfamily} is not supported by metricbeat."
   $conf_template            = "${module_name}/pure_hash.yml.erb"

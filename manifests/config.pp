@@ -25,6 +25,7 @@ class metricbeat::config {
       'max_procs'         => $metricbeat::max_procs,
       'cloud_id'          => $metricbeat::cloud_id,
       'cloud_auth'        => $metricbeat::cloud_auth,
+      'modulesd'          => $metricbeat::modulesd,
       'fields'            => $metricbeat::fields,
       'fields_under_root' => $metricbeat::fields_under_root,
       'metricbeat'          => {
@@ -64,6 +65,7 @@ class metricbeat::config {
       'max_procs'         => $metricbeat::max_procs,
       'cloud_id'          => $metricbeat::cloud_id,
       'cloud_auth'        => $metricbeat::cloud_auth,
+      'modulesd'          => $metricbeat::modulesd,
       'fields'            => $metricbeat::fields,
       'fields_under_root' => $metricbeat::fields_under_root,
       'metricbeat'          => {
@@ -214,6 +216,14 @@ class metricbeat::config {
         validate_cmd => $validate_cmd,
         notify       => Service['metricbeat'],
         require      => File['metricbeat-config-dir'],
+      }
+
+      file {'system.yml':
+        ensure  => $metricbeat::file_ensure,
+        path    => "${metricbeat::modules_dir}/system.yml",
+        content => template("${module_name}/modules.d/system.yml.erb"),
+        notify  => Service['metricbeat'],
+        require => File['metricbeat-config-dir'],
       }
 
       file {'metricbeat-config-dir':

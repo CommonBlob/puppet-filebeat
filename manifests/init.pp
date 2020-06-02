@@ -31,6 +31,7 @@
 # @param shipper [Hash] Will be converted to YAML to create the optional shipper section of the metricbeat config (see documentation)
 # @param logging [Hash] Will be converted to YAML to create the optional logging section of the metricbeat config (see documentation)
 # @param modules [Array] Will be converted to YAML to create the optional modules section of the metricbeat config (see documentation)
+# @param modulesd [Hash] Will be use to fill the templates in modules.d
 # @param conf_template [String] The configuration template to use to generate the main metricbeat.yml config file
 # @param download_url [String] The URL of the zip file that should be downloaded to install metricbeat (windows only)
 # @param install_dir [String] Where metricbeat should be installed (windows only)
@@ -94,6 +95,7 @@ class metricbeat (
   Variant[Hash, Array] $inputs                                        = {},
   Hash    $setup                                                      = {},
   Array   $modules                                                    = [],
+  Hash    $modulesd                                                   = {},
   Optional[Variant[Stdlib::HTTPUrl, Stdlib::HTTPSUrl]] $proxy_address = undef, # lint:ignore:140chars
   Stdlib::Absolutepath $metricbeat_path                                 = $metricbeat::params::metricbeat_path,
   Optional[Hash] $xpack                                               = $metricbeat::params::xpack,

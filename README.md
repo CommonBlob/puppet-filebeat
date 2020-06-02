@@ -1,14 +1,12 @@
-# puppet-filebeat
-
-[![Build Status](https://travis-ci.org/pcfens/puppet-filebeat.svg?branch=master)](https://travis-ci.org/pcfens/puppet-filebeat)
+# puppet-metricbeat
 
 #### Table of Contents
 
 1. [Description](#description)
-2. [Setup - The basics of getting started with filebeat](#setup)
-    - [What filebeat affects](#what-filebeat-affects)
+2. [Setup - The basics of getting started with metricbeat](#setup)
+    - [What metricbeat affects](#what-metricbeat-affects)
     - [Setup requirements](#setup-requirements)
-    - [Beginning with filebeat](#beginning-with-filebeat)
+    - [Beginning with metricbeat](#beginning-with-metricbeat)
 3. [Usage - Configuration options and additional functionality](#usage)
     - [Adding an Input](#adding-an-input)
       - [Multiline Logs](#multiline-logs)
@@ -28,41 +26,41 @@
 
 ## Description
 
-The `filebeat` module installs and configures the [filebeat log shipper](https://www.elastic.co/products/beats/filebeat) maintained by elastic.
+The `metricbeat` module installs and configures the [metricbeat log shipper](https://www.elastic.co/products/beats/metricbeat) maintained by elastic.
 
 ## Setup
 
-### What filebeat affects
+### What metricbeat affects
 
-By default `filebeat` adds a software repository to your system, and installs filebeat along
+By default `metricbeat` adds a software repository to your system, and installs metricbeat along
 with required configurations.
 
-### Upgrading to Filebeat 7.x
+### Upgrading to metricbeat 7.x
 
-To upgrade to Filebeat 7.x, simply set `$filebeat::major_version` to `7` and `$filebeat::package_ensure` to `latest` (or whichever version of 7.x you want, just not present).
+To upgrade to metricbeat 7.x, simply set `$metricbeat::major_version` to `7` and `$metricbeat::package_ensure` to `latest` (or whichever version of 7.x you want, just not present).
 
-You'll also need to change instances of `filebeat::prospector` to `filebeat::input` when upgrading to version 4.x of
+You'll also need to change instances of `metricbeat::prospector` to `metricbeat::input` when upgrading to version 4.x of
 this module.
 
 
 ### Setup Requirements
 
-The `filebeat` module depends on [`puppetlabs/stdlib`](https://forge.puppetlabs.com/puppetlabs/stdlib), and on
+The `metricbeat` module depends on [`puppetlabs/stdlib`](https://forge.puppetlabs.com/puppetlabs/stdlib), and on
 [`puppetlabs/apt`](https://forge.puppetlabs.com/puppetlabs/apt) on Debian based systems.
 
-### Beginning with filebeat
+### Beginning with metricbeat
 
-`filebeat` can be installed with `puppet module install pcfens-filebeat` (or with r10k, librarian-puppet, etc.)
+`metricbeat` can be installed with `puppet module install pcfens-metricbeat` (or with r10k, librarian-puppet, etc.)
 
 The only required parameter, other than which files to ship, is the `outputs` parameter.
 
 ## Usage
 
-All of the default values in filebeat follow the upstream defaults (at the time of writing).
+All of the default values in metricbeat follow the upstream defaults (at the time of writing).
 
-To ship files to [elasticsearch](https://www.elastic.co/guide/en/beats/filebeat/current/filebeat-configuration-details.html#elasticsearch-output):
+To ship files to [elasticsearch](https://www.elastic.co/guide/en/beats/metricbeat/current/metricbeat-configuration-details.html#elasticsearch-output):
 ```puppet
-class { 'filebeat':
+class { 'metricbeat':
   outputs => {
     'elasticsearch' => {
      'hosts' => [
@@ -79,9 +77,9 @@ class { 'filebeat':
 
 ```
 
-To ship log files through [logstash](https://www.elastic.co/guide/en/beats/filebeat/current/filebeat-configuration-details.html#logstash-output):
+To ship log files through [logstash](https://www.elastic.co/guide/en/beats/metricbeat/current/metricbeat-configuration-details.html#logstash-output):
 ```puppet
-class { 'filebeat':
+class { 'metricbeat':
   outputs => {
     'logstash'     => {
      'hosts' => [
@@ -95,41 +93,21 @@ class { 'filebeat':
 
 ```
 
-[Shipper](https://www.elastic.co/guide/en/beats/filebeat/current/filebeat-configuration-details.html#configuration-shipper) and
-[logging](https://www.elastic.co/guide/en/beats/filebeat/current/filebeat-configuration-details.html#configuration-logging) options
-can be configured the same way, and are documented on the [elastic website](https://www.elastic.co/guide/en/beats/filebeat/current/index.html).
-
-### Adding an Input
-
-Inputs are processes that ship log files to elasticsearch or logstash. They can
-be defined as a hash added to the class declaration (also used for automatically creating
-input using hiera), or as their own defined resources.
-
-At a minimum, the `paths` parameter must be set to an array of files or blobs that should
-be shipped. `doc_type` is what logstash views as the type parameter if you'd like to
-apply conditional filters.
-
-```puppet
-filebeat::input { 'syslogs':
-  paths    => [
-    '/var/log/auth.log',
-    '/var/log/syslog',
-  ],
-  doc_type => 'syslog-beat',
-}
-```
+[Shipper](https://www.elastic.co/guide/en/beats/metricbeat/current/metricbeat-configuration-details.html#configuration-shipper) and
+[logging](https://www.elastic.co/guide/en/beats/metricbeat/current/metricbeat-configuration-details.html#configuration-logging) options
+can be configured the same way, and are documented on the [elastic website](https://www.elastic.co/guide/en/beats/metricbeat/current/index.html).
 
 #### Multiline Logs
 
-Filebeat inputs can handle multiline log entries. The `multiline`
+metricbeat inputs can handle multiline log entries. The `multiline`
 parameter accepts a hash containing `pattern`, `negate`, `match`, `max_lines`, and `timeout`
-as documented in the filebeat [configuration documentation](https://www.elastic.co/guide/en/beats/filebeat/current/multiline-examples.html).
+as documented in the metricbeat [configuration documentation](https://www.elastic.co/guide/en/beats/metricbeat/current/multiline-examples.html).
 
 #### JSON Logs
 
-Filebeat inputs (versions >= 5.0) can natively decode JSON objects if they are stored one per line. The `json`
+metricbeat inputs (versions >= 5.0) can natively decode JSON objects if they are stored one per line. The `json`
 parameter accepts a hash containing `message_key`, `keys_under_root`, `overwrite_keys`, and `add_error_key`
-as documented in the filebeat [configuration documentation](https://www.elastic.co/guide/en/beats/filebeat/5.5/configuration-filebeat-options.html#config-json).
+as documented in the metricbeat [configuration documentation](https://www.elastic.co/guide/en/beats/metricbeat/5.5/configuration-metricbeat-options.html#config-json).
 
 ### Inputs in Hiera
 
@@ -143,14 +121,14 @@ Array that will output as is to the input config file.
 
 ### Usage on Windows
 
-When installing on Windows, this module will download the windows version of Filebeat from
-[elastic](https://www.elastic.co/downloads/beats/filebeat) to `C:\Temp` by default. The directory
+When installing on Windows, this module will download the windows version of metricbeat from
+[elastic](https://www.elastic.co/downloads/beats/metricbeat) to `C:\Temp` by default. The directory
 can be overridden using the `tmp_dir` parameter. `tmp_dir` is not managed by this module,
 but is expected to exist as a directory that puppet can write to.
 
 ### Processors
 
-Filebeat 5.0 and greater includes a new libbeat feature for filtering and/or enhancing all
+metricbeat 5.0 and greater includes a new libbeat feature for filtering and/or enhancing all
 exported data through processors before being sent to the configured output(s). They can be
 defined as a hash added to the class declaration (also used for automatically creating
 processors using hiera), or as their own defined resources.
@@ -158,7 +136,7 @@ processors using hiera), or as their own defined resources.
 To drop the offset and input_type fields from all events:
 
 ```puppet
-class {'filebeat':
+class {'metricbeat':
   processors => [
     {
       'drop_fields' => {
@@ -172,7 +150,7 @@ class {'filebeat':
 To drop all events that have the http response code equal to 200:
 input
 ```puppet
-class {'filebeat':
+class {'metricbeat':
   processors => [
     {
       'drop_event' => {
@@ -186,7 +164,7 @@ class {'filebeat':
 Now to combine these examples into a single definition:
 
 ```puppet
-class {'filebeat':
+class {'metricbeat':
   processors => [
     {
       'drop_fields' => {
@@ -204,7 +182,7 @@ class {'filebeat':
 }
 ```
 
-For more information please review the documentation [here](https://www.elastic.co/guide/en/beats/filebeat/5.1/configuration-processors.html).
+For more information please review the documentation [here](https://www.elastic.co/guide/en/beats/metricbeat/5.1/configuration-processors.html).
 
 #### Processors in Hiera
 
@@ -215,10 +193,10 @@ flag.
 
 ### Index Lifecycle Management
 
-You can override the default filebeat ILM policy by specifying `ilm.policy` hash in `filebeat::setup` parameter:
+You can override the default metricbeat ILM policy by specifying `ilm.policy` hash in `metricbeat::setup` parameter:
 
 ```
-filebeat::setup:
+metricbeat::setup:
   ilm.policy:
     phases:
       hot:
@@ -231,43 +209,43 @@ filebeat::setup:
 
 ## Reference
  - [**Public Classes**](#public-classes)
-    - [Class: filebeat](#class-filebeat)
+    - [Class: metricbeat](#class-metricbeat)
  - [**Private Classes**](#private-classes)
-    - [Class: filebeat::config](#class-filebeatconfig)
-    - [Class: filebeat::install](#class-filebeatinstall)
-    - [Class: filebeat::params](#class-filebeatparams)
-    - [Class: filebeat::repo](#class-filebeatrepo)
-    - [Class: filebeat::service](#class-filebeatservice)
-    - [Class: filebeat::install::linux](#class-filebeatinstalllinux)
-    - [Class: filebeat::install::windows](#class-filebeatinstallwindows)
+    - [Class: metricbeat::config](#class-metricbeatconfig)
+    - [Class: metricbeat::install](#class-metricbeatinstall)
+    - [Class: metricbeat::params](#class-metricbeatparams)
+    - [Class: metricbeat::repo](#class-metricbeatrepo)
+    - [Class: metricbeat::service](#class-metricbeatservice)
+    - [Class: metricbeat::install::linux](#class-metricbeatinstalllinux)
+    - [Class: metricbeat::install::windows](#class-metricbeatinstallwindows)
  - [**Public Defines**](#public-defines)
-    - [Define: filebeat::input](#define-filebeatinput)
-    - [Define: filebeat::processors](#define-filebeatprocessor)
+    - [Define: metricbeat::input](#define-metricbeatinput)
+    - [Define: metricbeat::processors](#define-metricbeatprocessor)
 
 ### Public Classes
 
-#### Class: `filebeat`
+#### Class: `metricbeat`
 
-Installs and configures filebeat.
+Installs and configures metricbeat.
 
-**Parameters within `filebeat`**
-- `package_ensure`: [String] The ensure parameter for the filebeat package If set to absent,
+**Parameters within `metricbeat`**
+- `package_ensure`: [String] The ensure parameter for the metricbeat package If set to absent,
   inputs and processors passed as parameters are ignored and everything managed by
   puppet will be removed. (default: present)
 - `manage_repo`: [Boolean] Whether or not the upstream (elastic) repo should be configured or not (default: true)
-- `major_version`: [Enum] The major version of Filebeat to install. Should be either `'5'` or `'6'`. The default value is `'6'`, except
+- `major_version`: [Enum] The major version of metricbeat to install. Should be either `'5'` or `'6'`. The default value is `'6'`, except
    for OpenBSD 6.3 and earlier, which has a default value of `'5'`.
-- `service_ensure`: [String] The ensure parameter on the filebeat service (default: running)
-- `service_enable`: [String] The enable parameter on the filebeat service (default: true)
+- `service_ensure`: [String] The ensure parameter on the metricbeat service (default: running)
+- `service_enable`: [String] The enable parameter on the metricbeat service (default: true)
 - `param repo_priority`: [Integer] Repository priority.  yum and apt supported (default: undef)
-- `service_provider`: [String] The provider parameter on the filebeat service (default: on RedHat based systems use redhat, otherwise undefined)
+- `service_provider`: [String] The provider parameter on the metricbeat service (default: on RedHat based systems use redhat, otherwise undefined)
 - `spool_size`: [Integer] How large the spool should grow before being flushed to the network (default: 2048)
 - `idle_timeout`: [String] How often the spooler should be flushed even if spool size isn't reached (default: 5s)
-- `publish_async`: [Boolean] If set to true filebeat will publish while preparing the next batch of lines to transmit (default: false)
+- `publish_async`: [Boolean] If set to true metricbeat will publish while preparing the next batch of lines to transmit (default: false)
 - `config_file`: [String] Where the configuration file managed by this module should be placed. If you think
   you might want to use this, read the [limitations](#using-config_file) first. Defaults to the location
-  that filebeat expects for your operating system.
-- `config_dir`: [String] The directory where inputs should be defined (default: /etc/filebeat/conf.d)
+  that metricbeat expects for your operating system.
+- `config_dir`: [String] The directory where inputs should be defined (default: /etc/metricbeat/conf.d)
 - `config_dir_mode`: [String] The permissions mode set on the configuration directory (default: 0755)
 - `config_dir_owner`: [String] The owner of the configuration directory (default: root). Linux only.
 - `config_dir_group`: [String] The group of the configuration directory (default: root). Linux only.
@@ -275,18 +253,19 @@ Installs and configures filebeat.
 - `config_file_owner`: [String] The owner of the configuration files, including inputs (default: root). Linux only.
 - `config_file_group`: [String] The group of the configuration files, including inputs (default: root). Linux only.
 - `purge_conf_dir`: [Boolean] Should files in the input configuration directory not managed by puppet be automatically purged
-- `enable_conf_modules`: [Boolean] Should filebeat.config.modules be enabled
-- `modules_dir`: [String] The directory where module configurations should be defined (default: /etc/filebeat/modules.d)
+- `enable_conf_modules`: [Boolean] Should metricbeat.config.modules be enabled
+- `modules_dir`: [String] The directory where module configurations should be defined (default: /etc/metricbeat/modules.d)
 - `outputs`: [Hash] Will be converted to YAML for the required outputs section of the configuration (see documentation, and above)
-- `shipper`: [Hash] Will be converted to YAML to create the optional shipper section of the filebeat config (see documentation)
-- `logging`: [Hash] Will be converted to YAML to create the optional logging section of the filebeat config (see documentation)
-- `systemd_beat_log_opts_override`: [String] Will overide the default `BEAT_LOG_OPTS=-e`. Required if using `logging` hash on systems running with systemd. required: Puppet 6.1+, Filebeat 7+,
-- `modules`: [Array] Will be converted to YAML to create the optional modules section of the filebeat config (see documentation)
-- `conf_template`: [String] The configuration template to use to generate the main filebeat.yml config file.
-- `download_url`: [String] The URL of the zip file that should be downloaded to install filebeat (windows only)
-- `install_dir`: [String] Where filebeat should be installed (windows only)
-- `tmp_dir`: [String] Where filebeat should be temporarily downloaded to so it can be installed (windows only)
-- `shutdown_timeout`: [String] How long filebeat waits on shutdown for the publisher to finish sending events
+- `shipper`: [Hash] Will be converted to YAML to create the optional shipper section of the metricbeat config (see documentation)
+- `logging`: [Hash] Will be converted to YAML to create the optional logging section of the metricbeat config (see documentation)
+- `systemd_beat_log_opts_override`: [String] Will overide the default `BEAT_LOG_OPTS=-e`. Required if using `logging` hash on systems running with systemd. required: Puppet 6.1+, metricbeat 7+,
+- `modules`: [Array] Will be converted to YAML to create the optional modules section of the metricbeat config (see documentation)
+- `modulesd`: [Hash] Used to fill in the templates stored in modules.d
+- `conf_template`: [String] The configuration template to use to generate the main metricbeat.yml config file.
+- `download_url`: [String] The URL of the zip file that should be downloaded to install metricbeat (windows only)
+- `install_dir`: [String] Where metricbeat should be installed (windows only)
+- `tmp_dir`: [String] Where metricbeat should be temporarily downloaded to so it can be installed (windows only)
+- `shutdown_timeout`: [String] How long metricbeat waits on shutdown for the publisher to finish sending events
 - `beat_name`: [String] The name of the beat shipper (default: hostname)
 - `tags`: [Array] A list of tags that will be included with each published transaction
 - `max_procs`: [Number] The maximum number of CPUs that can be simultaneously used
@@ -294,51 +273,51 @@ Installs and configures filebeat.
 - `fields_under_root`: [Boolean] If set to true, custom fields are stored in the top level instead of under fields
 - `disable_config_test`: [Boolean] If set to true, configuration tests won't be run on config files before writing them.
 - `processors`: [Array] Processors that should be configured.
-- `monitoring`: [Hash] The monitoring.* components of the filebeat configuration.
+- `monitoring`: [Hash] The monitoring.* components of the metricbeat configuration.
 - `inputs`: [Hash] or [Array] Inputs that will be created. Commonly used to create inputs using hiera
 - `setup`: [Hash] Setup that will be created. Commonly used to create setup using hiera
-- `xpack`: [Hash] XPack configuration to pass to filebeat
+- `xpack`: [Hash] XPack configuration to pass to metricbeat
 
 ### Private Classes
 
-#### Class: `filebeat::config`
+#### Class: `metricbeat::config`
 
-Creates the configuration files required for filebeat (but not the inputs)
+Creates the configuration files required for metricbeat (but not the inputs)
 
-#### Class: `filebeat::install`
+#### Class: `metricbeat::install`
 
 Calls the correct installer class based on the kernel fact.
 
-#### Class: `filebeat::params`
+#### Class: `metricbeat::params`
 
-Sets default parameters for `filebeat` based on the OS and other facts.
+Sets default parameters for `metricbeat` based on the OS and other facts.
 
-#### Class: `filebeat::repo`
+#### Class: `metricbeat::repo`
 
-Installs the yum or apt repository for the system package manager to install filebeat.
+Installs the yum or apt repository for the system package manager to install metricbeat.
 
-#### Class: `filebeat::service`
+#### Class: `metricbeat::service`
 
-Configures and manages the filebeat service.
+Configures and manages the metricbeat service.
 
-#### Class: `filebeat::install::linux`
+#### Class: `metricbeat::install::linux`
 
-Install the filebeat package on Linux kernels.
+Install the metricbeat package on Linux kernels.
 
-#### Class: `filebeat::install::windows`
+#### Class: `metricbeat::install::windows`
 
-Downloads, extracts, and installs the filebeat zip file in Windows.
+Downloads, extracts, and installs the metricbeat zip file in Windows.
 
 ### Public Defines
 
-#### Define: `filebeat::input`
+#### Define: `metricbeat::input`
 
 Installs a configuration file for a input.
 
-Be sure to read the [filebeat configuration details](https://www.elastic.co/guide/en/beats/filebeat/current/filebeat-configuration-details.html)
+Be sure to read the [metricbeat configuration details](https://www.elastic.co/guide/en/beats/metricbeat/current/metricbeat-configuration-details.html)
 to fully understand what these parameters do.
 
-**Parameters for `filebeat::input`**
+**Parameters for `metricbeat::input`**
   - `ensure`: The ensure parameter on the input configuration file. (default: present)
   - `paths`: [Array] The paths, or blobs that should be handled by the input. (required if input_type is _log_)
   - `containers_ids`: [Array] If input_type is _docker_, the list of Docker container ids to read the logs from. (default: '*')
@@ -348,12 +327,12 @@ to fully understand what these parameters do.
   - `cri_parse_flags`: [Boolean] If input_type is _docker_, enable CRI flags parsing from the log file. (default: false)
   - `syslog_protocol`: [Enum tcp,udp] Syslog protocol (default: udp)
   - `syslog_host`: [String] Host to listen for syslog messages (default: localhost:5140)
-  - `exclude_files`: [Array] Files that match any regex in the list are excluded from filebeat (default: [])
+  - `exclude_files`: [Array] Files that match any regex in the list are excluded from metricbeat (default: [])
   - `encoding`: [String] The file encoding. (default: plain)
-  - `input_type`: [String] where filebeat reads the log from (default:log)
+  - `input_type`: [String] where metricbeat reads the log from (default:log)
   - `fields`: [Hash] Optional fields to add information to the output (default: {})
   - `fields_under_root`: [Boolean] Should the `fields` parameter fields be stored at the top level of indexed documents.
-  - `ignore_older`: [String] Files older than this field will be ignored by filebeat (default: ignore nothing)
+  - `ignore_older`: [String] Files older than this field will be ignored by metricbeat (default: ignore nothing)
   - `close_older`: [String] Files that haven't been modified since `close_older`, they'll be closed. New
   modifications will be read when files are scanned again according to `scan_frequency`. (default: 1h)
   - `log_type`: [String] \(Deprecated - use `doc_type`\) The document_type setting (optional - default: log)
@@ -361,26 +340,26 @@ to fully understand what these parameters do.
     and elasticsearch (optional - default: log)
   - `scan_frequency`: [String] How often should the input check for new files (default: 10s)
   - `harvester_buffer_size`: [Integer] The buffer size the harvester uses when fetching the file (default: 16384)
-  - `tail_files`: [Boolean] If true, filebeat starts reading new files at the end instead of the beginning (default: false)
-  - `backoff`: [String] How long filebeat should wait between scanning a file after reaching EOF (default: 1s)
+  - `tail_files`: [Boolean] If true, metricbeat starts reading new files at the end instead of the beginning (default: false)
+  - `backoff`: [String] How long metricbeat should wait between scanning a file after reaching EOF (default: 1s)
   - `max_backoff`: [String] The maximum wait time to scan a file for new lines to ship (default: 10s)
   - `backoff_factor`: [Integer] `backoff` is multiplied by this parameter until `max_backoff` is reached to
     determine the actual backoff (default: 2)
-  - `force_close_files`: [Boolean] Should filebeat forcibly close a file when renamed (default: false)
-  - `pipeline`: [String] Filebeat can be configured for a different ingest pipeline for each input (default: undef)
+  - `force_close_files`: [Boolean] Should metricbeat forcibly close a file when renamed (default: false)
+  - `pipeline`: [String] metricbeat can be configured for a different ingest pipeline for each input (default: undef)
   - `include_lines`: [Array] A list of regular expressions to match the lines that you want to include.
     Ignored if empty (default: [])
   - `exclude_lines`: [Array] A list of regular expressions to match the files that you want to exclude.
     Ignored if empty (default: [])
   - `max_bytes`: [Integer] The maximum number of bytes that a single log message can have (default: 10485760)
   - `tags`: [Array] A list of tags to send along with the log data.
-  - `json`: [Hash] Options that control how filebeat handles decoding of log messages in JSON format
+  - `json`: [Hash] Options that control how metricbeat handles decoding of log messages in JSON format
     [See above](#json-logs). (default: {})
-  - `multiline`: [Hash] Options that control how Filebeat handles log messages that span multiple lines.
+  - `multiline`: [Hash] Options that control how metricbeat handles log messages that span multiple lines.
     [See above](#multiline-logs). (default: {})
 
 ## Limitations
-This module doesn't load the [elasticsearch index template](https://www.elastic.co/guide/en/beats/filebeat/current/filebeat-getting-started.html#filebeat-template) into elasticsearch (required when shipping
+This module doesn't load the [elasticsearch index template](https://www.elastic.co/guide/en/beats/metricbeat/current/metricbeat-getting-started.html#metricbeat-template) into elasticsearch (required when shipping
 directly to elasticsearch).
 
 When installing on Windows, there's an expectation that `C:\Temp` already exists, or an alternative
@@ -391,33 +370,33 @@ is used to store the downloaded installer only.
 
 By default, a generic, open ended template is used that simply converts your configuration into
 a hash that is produced as YAML on the system. To use a template that is more strict, but possibly
-incomplete, set `conf_template` to `filebeat/filebeat.yml.erb`.
+incomplete, set `conf_template` to `metricbeat/metricbeat.yml.erb`.
 
 ### Debian Systems
 
-Filebeat 5.x and newer requires apt-transport-https, but this module won't install it for you.
+metricbeat 5.x and newer requires apt-transport-https, but this module won't install it for you.
 
 ### Using config_file
-There are a few very specific use cases where you don't want this module to directly manage the filebeat
+There are a few very specific use cases where you don't want this module to directly manage the metricbeat
 configuration file, but you still want the configuration file on the system at a different location.
-Setting `config_file` will write the filebeat configuration file to an alternate location, but it will not
-update the init script. If you don't also manage the correct file (/etc/filebeat/filebeat.yml on Linux,
-C:/Program Files/Filebeat/filebeat.yml on Windows) then filebeat won't be able to start.
+Setting `config_file` will write the metricbeat configuration file to an alternate location, but it will not
+update the init script. If you don't also manage the correct file (/etc/metricbeat/metricbeat.yml on Linux,
+C:/Program Files/metricbeat/metricbeat.yml on Windows) then metricbeat won't be able to start.
 
 If you're copying the alternate config file location into the real location you'll need to include some
 metaparameters like
 ```puppet
-file { '/etc/filebeat/filebeat.yml':
+file { '/etc/metricbeat/metricbeat.yml':
   ensure  => file,
-  source  => 'file:///etc/filebeat/filebeat.special',
-  require => File['filebeat.yml'],
-  notify  => Service['filebeat'],
+  source  => 'file:///etc/metricbeat/metricbeat.special',
+  require => File['metricbeat.yml'],
+  notify  => Service['metricbeat'],
 }
 ```
 to ensure that services are managed like you might expect.
 
-### Logging on systems with Systemd and with version filebeat 7.0+ installed
-With filebeat version 7+ running on systems with systemd, the filebeat systemd service file contains a default that will ignore the logging hash parameter
+### Logging on systems with Systemd and with version metricbeat 7.0+ installed
+With metricbeat version 7+ running on systems with systemd, the metricbeat systemd service file contains a default that will ignore the logging hash parameter
 
 ```
 Environment="BEAT_LOG_OPTS=-e`
@@ -426,14 +405,14 @@ to overide this default, you will need to set the systemd_beat_log_opts_override
 
 example:
 ```puppet
-class {'filebeat':
+class {'metricbeat':
   logging => {
     'level'     => 'debug',
     'to_syslog' => false,
     'to_files'  => true,
     'files'     => {
-      'path'        => '/var/log/filebeat',
-      'name'        => 'filebeat',
+      'path'        => '/var/log/metricbeat',
+      'name'        => 'metricbeat',
       'keepfiles'   => '7',
       'permissions' => '0644'
     },
@@ -446,7 +425,7 @@ this will only work on systems with puppet version 6.1+. On systems with puppet 
 ```puppet
 include systemd::systemctl::daemon_reload
 
-class {'filebeat':
+class {'metricbeat':
   logging => {
 ...
     },

@@ -68,6 +68,15 @@ describe 'metricbeat::config' do
             }
 
             it {
+              is_expected.to contain_file('system.yml').with(
+                ensure: 'file',
+                path: 'C:/Program Files/Metricbeat/modules.d/system.yml',
+                notify: 'Service[metricbeat]',
+                require: 'File[metricbeat-config-dir]',
+              )
+            }
+
+            it {
               is_expected.to contain_file('metricbeat-config-dir').with(
                 ensure: 'directory',
                 path: 'C:/Program Files/Metricbeat/conf.d',
